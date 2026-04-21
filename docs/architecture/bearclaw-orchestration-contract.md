@@ -25,6 +25,32 @@ BearClaw may:
 
 BearClaw must not require the operator to manage step-by-step orchestration for routine coding work.
 
+## Onboarding Boundary
+
+BearClaw may support the `onboarding-ops` workspace as a human-in-the-loop operating surface.
+
+That approved scope includes:
+
+- intake and triage of onboarding-related material
+- routing work into `raw` / `work` / `compiled`
+- generating review surfaces, task packets, canary runs, and packaging drafts
+- delegated repo work, verification, and boundary enforcement
+
+That approved scope does not include autonomous real-world onboarding execution.
+
+BearClaw must not treat this contract as permission to:
+
+- submit credentialing or onboarding forms
+- operate signed-in browser sessions on institutional systems
+- use Bitwarden or other secret-bearing login flows autonomously
+- send operational outbound email or messages as final acts without explicit approval
+- act on live portals, external systems, or institution-facing workflows as if repo support equals execution authority
+
+The safe reading is:
+
+- BearClaw may support the onboarding workspace
+- BearClaw may not autonomously perform the real-world onboarding process
+
 ## Dispositions
 
 Every substantive build-relevant topic should terminate with one explicit disposition:
@@ -152,6 +178,7 @@ This contract intentionally uses only models already present in the live OpenCla
 - read-only and bounded execution by default
 - explicit approval before risky external side effects
 - concise final summaries with one caveat line if needed
+- when discussing onboarding, default to "workspace support" language rather than implying live operational authority
 
 ## Success Criteria
 

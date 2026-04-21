@@ -17,3 +17,7 @@
 ## Commit Closeout
 
 - 2026-04-20: committed initial orchestrator workspace doctrine and BearClaw contract as `2f19907`
+
+## Boundary Clarification
+
+- 2026-04-21: narrowed BearClaw onboarding language to explicitly mean human-in-the-loop onboarding workspace support, not autonomous real-world onboarding execution
