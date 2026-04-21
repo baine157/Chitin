@@ -13,3 +13,7 @@
 - Imported the BearClaw orchestration contract from the onboarding workspace after repo-boundary cleanup
 - General BearClaw doctrine now lives in the neutral orchestrator repo rather than inside `onboarding-ops`
 - Contract scope covers intake, triage, task packets, delegated coding, verification gates, and model stratification
+
+## Commit Closeout
+
+- 2026-04-20: committed initial orchestrator workspace doctrine and BearClaw contract as `2f19907`
