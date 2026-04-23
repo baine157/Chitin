@@ -1,5 +1,6 @@
 .openclaw/
 state/
+state/health-harness/.env.local
 
 AGENTS.md
 BOOTSTRAP.md
