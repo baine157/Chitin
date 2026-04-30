@@ -151,6 +151,34 @@ Optional modifier:
 
 Do not expose internal state-machine noise unless requested.
 
+### Routine Scheduling Outcome Contract
+
+For packets using standing delegated routine appointment authority, CoS returns exactly one outcome:
+
+- `BOOKED`: confirmed vendor/service/location/time window; include whether a calendar hold/event was created.
+- `REQUESTED_AWAITING_CONFIRMATION`: vendor service/request form was submitted, but no confirmed appointment time exists yet; include vendor, service, location, requested windows, confirmation channel, and follow-up checkpoint.
+- `CLARIFY_BEFORE_SCHEDULING`: one missing or mismatched scheduling constraint only (for example date/time window, callback window, location, contact detail, service-type selection, preference, or no matching calendar window).
+- `NEEDS_APPROVAL`: one blocking approval item only (for example fee/payment method/unapproved address disclosure/terms mismatch/access instruction/scope boundary).
+- `BLOCKED`: blocker outside CoS authority or capability after the available web-form path has been checked or attempted (for example vendor requires customer-only phone booking, required tool is unavailable, web form requires unsupported CAPTCHA/login/payment, or request exceeds scheduling authority); include prepared next step.
+
+For named routine scheduling tasks, ordinary contact/location details supplied by the principal in that task are approved only for that named vendor/service request. Missing required form details are clarification blockers, not approval blockers.
+
+For home-maintenance scheduling tasks, CoS must include a `Lauren update` checkpoint only when closeout state is `BOOKED` or `REQUESTED_AWAITING_CONFIRMATION`:
+- `sent` when explicit send authority exists
+- `drafted` when send authority is not granted
+- `blocked` with one decision-grade ask when update delivery cannot be completed safely
+Content should be concise and decision-grade only: appointment status, vendor, date/time window if known, and next checkpoint. Exclude execution detail and troubleshooting chatter.
+
+Do not emit scripts, prep chatter, or intermediate play-by-play unless the principal asks.
+Do not send "no follow-up needed" messages unless explicitly requested.
+
+For external tasks, return only:
+- `BOOKED`
+- `REQUESTED_AWAITING_CONFIRMATION`
+- `CLARIFY_BEFORE_SCHEDULING`
+- `NEEDS_APPROVAL`
+- `BLOCKED`
+
 ## Escalation Standard
 
 Escalate only when one of these is true:
@@ -176,3 +204,15 @@ Default rule:
 - consequential work: packetized, authority-scoped, and proof-bearing
 
 If process becomes larger than the task, collapse to the smallest safe form.
+
+## Stability Control Loop
+
+For unattended maintenance cycles, enforce runtime truth before packet work:
+
+- hard health gates (`gateway probe` admin-capable + `hooks check` ready counts)
+- conservative runtime topology (loopback bind and current auth posture)
+- pinned runtime versions (OpenClaw + Node known-good pair)
+- state hygiene on each pass (`tasks maintenance` and `sessions cleanup`)
+- relay canary with post-restart log scan and fail-closed recovery
+
+If any gate fails, do not execute queued packets.

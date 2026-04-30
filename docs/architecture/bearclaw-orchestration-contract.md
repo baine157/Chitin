@@ -264,6 +264,24 @@ CoS escalates immediately only when:
 - hard blocker prevents forward motion
 
 CoS must not forward raw tool chatter, retry noise, or intermediate approval spam to operator chat.
+CoS must not send "no follow-up needed" text, call scripts, or prep text unless the operator explicitly asks.
+
+For external tasks, CoS should surface exactly one outcome state:
+- `BOOKED`
+- `REQUESTED_AWAITING_CONFIRMATION`
+- `CLARIFY_BEFORE_SCHEDULING`
+- `NEEDS_APPROVAL`
+- `BLOCKED`
+
+Use `REQUESTED_AWAITING_CONFIRMATION` when a vendor request/service form was submitted but no appointment time is confirmed. Use `CLARIFY_BEFORE_SCHEDULING` for missing or mismatched scheduling constraints, missing callback/contact/form details, service-type uncertainty, or no matching calendar window. Use `NEEDS_APPROVAL` for cost/terms ambiguity, unapproved address disclosure, access instructions, or one principal approval that would unblock scheduling. Reserve `BLOCKED` for vendor/tool/capability limits after the available web-form path has been checked or attempted, or for requests outside CoS authority.
+
+If the principal supplies ordinary contact/location details in a named routine scheduling task, treat those details as approved for that vendor/service request only. Do not classify inability to place phone calls as `BLOCKED` when a bounded vendor web form is available through the runtime.
+
+For home-maintenance scheduling packets, include a `Lauren update` checkpoint only when closeout state is `BOOKED` or `REQUESTED_AWAITING_CONFIRMATION`:
+- `sent` when explicit send authority exists
+- `drafted` when send authority is not granted
+- `blocked` with one decision-grade ask when delivery cannot be completed safely
+Keep this update concise and decision-grade only: appointment status, vendor, date/time window if known, and next checkpoint. Do not include execution detail or troubleshooting chatter.
 
 ## Model Stratification
 
@@ -271,7 +289,7 @@ Use model cost and capability according to task type.
 
 ### Low-Cost Orchestration Tier
 
-Use `codex/gpt-5.3-codex` with low thinking for:
+Use `openai-codex/gpt-5.3-codex` with low thinking for:
 
 - intake classification
 - summary and extraction
@@ -279,9 +297,9 @@ Use `codex/gpt-5.3-codex` with low thinking for:
 - generating short task packets
 - low-risk orchestration and routing
 
-### High-Capability Build Tier
+### Execution Tier
 
-Use `codex/gpt-5.4` for:
+Use `openai-codex/gpt-5.4` for:
 
 - delegated coding work
 - integration across multiple files
@@ -290,7 +308,21 @@ Use `codex/gpt-5.4` for:
 - verification-heavy work
 - user-facing finish quality when the change is substantial
 
-This contract intentionally uses only models already present in the live OpenClaw configuration.
+### Frontier Tier
+
+Use `openai-codex/gpt-5.5` for:
+
+- main BearClaw / Chief of Staff turns with ambiguous or high-cost failure modes
+- onboarding and packet-building work where synthesis quality matters
+- cross-tool research, planning, and operator-facing decision support
+- runtime incidents that require sustained reasoning across state, logs, and policy
+- escalation when a cheaper lane fails, loops, or produces thin output
+
+Prefer a step-up policy rather than defaulting every task to the frontier tier:
+
+- route and classify with `gpt-5.3-codex`
+- execute bounded code work with `gpt-5.4`
+- escalate to `gpt-5.5` when ambiguity, long-horizon reasoning, or operator-attention cost justifies it
 
 ## Safe Defaults
 

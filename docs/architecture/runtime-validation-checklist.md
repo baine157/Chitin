@@ -114,6 +114,68 @@ Fail condition:
 - planning-only request starts execution
 - runtime failure is surfaced as vague environment commentary
 
+### 6. Native-Hook / Write-Path Canary Gate
+
+Command:
+
+```text
+python3 scripts/observability/native_hook_write_canary.py
+python3 scripts/observability/collect_dashboard.py --check
+```
+
+Pass condition:
+
+- canary result JSON parses
+- `status` is `ok` for `native_hook_write_path`
+- result records `external_effect.occurred: false`
+- dashboard represents gateway health as necessary but insufficient
+- dashboard keeps `telegram_session_native_hook` separate from the terminal-local canary
+
+Fail condition:
+
+- canary reports `blocked`, `degraded`, or `error`
+- canary result is missing, stale, or has an invalid timestamp
+- native-hook relay is claimed healthy from gateway status alone
+- `Native hook relay unavailable`, `native hook relay not found`, or `relay unavailable` appears in fresh evidence
+
+Limit:
+
+- This terminal-local canary proves only local write/read/remove execution substrate.
+- It does not prove a live Telegram session native-hook relay; a live-session canary is a separate check.
+
+### 7. Live Telegram Session Native-Hook Smoke Gate
+
+Manual packet to run from the exact Telegram session being tested:
+
+```text
+Run this local-only smoke and report the resulting JSON path. Do not touch credentials, browser, portal, Bitwarden, MFA, tokens, cookies, passwords, submit, send, upload, attest, sign, certify, or finalize.
+
+cd /home/baine/openclaw/orchestrator
+python3 scripts/observability/live_session_native_hook_smoke.py --execution-origin telegram-live-session
+python3 scripts/observability/collect_dashboard.py --check
+```
+
+Pass condition:
+
+- the smoke command executes from the live Telegram session
+- result JSON parses at `state/observability/live-session-native-hook-smoke.json`
+- `execution_origin` is `telegram-live-session`
+- `status` is `ok`
+- result records `external_effect.occurred: false`
+- dashboard shows live-session native-hook smoke fresh/ok separately from gateway health
+
+Fail condition:
+
+- Telegram reports `Native hook relay unavailable`, `native hook relay not found`, or `relay unavailable`
+- result is missing, stale, invalid, or terminal-origin only
+- `execution_origin` is not `telegram-live-session`
+- dashboard marks gateway health as proof of live native-hook health
+
+Limit:
+
+- This is a trivial host-mutating file smoke only.
+- It proves that the exact Telegram session can perform one safe local write/read/remove action; it does not approve credentials, browser, portal, or external commits.
+
 ## Closeout Format
 
 Use this compact closeout:
@@ -125,6 +187,8 @@ Runtime validation:
 - security: pass|fail
 - sessions: pass|fail
 - behavior: pass|fail
+- native-hook/write canary: pass|fail|unverified
+- live Telegram native-hook smoke: pass|fail|unverified
 - residual risk:
 ```
 

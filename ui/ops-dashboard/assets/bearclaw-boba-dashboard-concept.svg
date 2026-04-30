@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">BearClaw Boba Mountain Dashboard Concept</title>
+  <desc id="desc">A polished executive dashboard hero concept with chocolate lab Boba, playful BearClaw motifs, green mountain layers, and operational status panels.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" x2="1280" y1="0" y2="720" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f5f0e6"/>
+      <stop offset=".42" stop-color="#dcebe2"/>
+      <stop offset="1" stop-color="#b7cdbf"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="132" x2="1180" y1="112" y2="650" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".82"/>
+      <stop offset=".55" stop-color="#eff7f2" stop-opacity=".72"/>
+      <stop offset="1" stop-color="#d8eadf" stop-opacity=".78"/>
+    </linearGradient>
+    <linearGradient id="ridgeBack" x1="93" x2="1176" y1="174" y2="523" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#a6b9aa"/>
+      <stop offset=".58" stop-color="#6f927b"/>
+      <stop offset="1" stop-color="#416a53"/>
+    </linearGradient>
+    <linearGradient id="ridgeFront" x1="8" x2="1277" y1="279" y2="647" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#315e43"/>
+      <stop offset=".55" stop-color="#1f6a43"/>
+      <stop offset="1" stop-color="#123f2c"/>
+    </linearGradient>
+    <linearGradient id="coat" x1="694" x2="1010" y1="231" y2="624" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7b594e"/>
+      <stop offset=".45" stop-color="#4b322c"/>
+      <stop offset="1" stop-color="#241817"/>
+    </linearGradient>
+    <linearGradient id="muzzle" x1="742" x2="939" y1="392" y2="594" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#89665e"/>
+      <stop offset=".58" stop-color="#553a34"/>
+      <stop offset="1" stop-color="#2a1c1a"/>
+    </linearGradient>
+    <linearGradient id="amber" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#efb850"/>
+      <stop offset="1" stop-color="#a96f00"/>
+    </linearGradient>
+    <radialGradient id="eye" cx=".34" cy=".28" r=".72">
+      <stop offset="0" stop-color="#d6a564"/>
+      <stop offset=".48" stop-color="#6a3d27"/>
+      <stop offset="1" stop-color="#130d0c"/>
+    </radialGradient>
+    <filter id="shadow" x="-15%" y="-18%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="22" stdDeviation="22" flood-color="#10261b" flood-opacity=".22"/>
+    </filter>
+    <filter id="panelShadow" x="-8%" y="-16%" width="116%" height="132%">
+      <feDropShadow dx="0" dy="15" stdDeviation="18" flood-color="#143322" flood-opacity=".14"/>
+    </filter>
+    <clipPath id="screenClip">
+      <rect x="88" y="72" width="1104" height="576" rx="42"/>
+    </clipPath>
+  </defs>
+
+  <rect width="1280" height="720" fill="url(#sky)"/>
+  <g clip-path="url(#screenClip)">
+    <path d="M-20 392 93 306l104 44 134-154 142 146 115-120 119 118 128-170 152 181 94-79 219 166v284H-20Z" fill="url(#ridgeBack)" opacity=".72"/>
+    <path d="M0 492 146 347l127 78 142-183 136 160 115-88 167 176 129-214 144 167 174-122v399H0Z" fill="url(#ridgeFront)"/>
+    <path d="M332 196 288 258l75-27Z" fill="#f8fbf7" opacity=".55"/>
+    <path d="M835 170 797 230l70-23Z" fill="#f8fbf7" opacity=".58"/>
+    <path d="M966 276 929 326l67-22Z" fill="#f8fbf7" opacity=".46"/>
+  </g>
+
+  <rect x="88" y="72" width="1104" height="576" rx="42" fill="url(#glass)" stroke="#f8fbf7" stroke-width="3" opacity=".92"/>
+  <path d="M131 133h390" stroke="#f8fbf7" stroke-width="2" opacity=".72"/>
+  <path d="M143 116h98" stroke="#1f6a43" stroke-width="11" stroke-linecap="round"/>
+  <path d="M261 116h46" stroke="#a96f00" stroke-width="11" stroke-linecap="round"/>
+  <path d="M326 116h29" stroke="#5d7b63" stroke-width="11" stroke-linecap="round" opacity=".65"/>
+
+  <g filter="url(#panelShadow)">
+    <rect x="136" y="170" width="356" height="154" rx="24" fill="#f9fbf8" opacity=".92"/>
+    <rect x="136" y="356" width="420" height="206" rx="24" fill="#f9fbf8" opacity=".9"/>
+    <rect x="568" y="128" width="240" height="156" rx="24" fill="#f9fbf8" opacity=".88"/>
+    <rect x="926" y="130" width="206" height="116" rx="24" fill="#f9fbf8" opacity=".88"/>
+  </g>
+
+  <g aria-hidden="true">
+    <text x="163" y="218" fill="#174d33" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="800" letter-spacing="0">BearClaw Ops</text>
+    <text x="163" y="252" fill="#5d7165" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" letter-spacing="0">Boba standing watch</text>
+    <path d="M164 286h268" stroke="#d3e0d8" stroke-width="12" stroke-linecap="round"/>
+    <path d="M164 286h208" stroke="#1f6a43" stroke-width="12" stroke-linecap="round"/>
+    <circle cx="424" cy="286" r="16" fill="url(#amber)"/>
+
+    <text x="163" y="402" fill="#174d33" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="800" letter-spacing="0">Executive signal</text>
+    <path d="M164 439c29-30 58-22 88-12s60 12 90-24 60-35 91 4 62 34 92 10" fill="none" stroke="#1f6a43" stroke-width="8" stroke-linecap="round"/>
+    <path d="M164 496h90M164 528h154M356 496h132M356 528h86" stroke="#9daf9f" stroke-width="10" stroke-linecap="round" opacity=".72"/>
+
+    <text x="596" y="177" fill="#174d33" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="800" letter-spacing="0">Claw queue</text>
+    <path d="M599 220c16-36 30-36 44 0M652 220c16-36 30-36 44 0M705 220c16-36 30-36 44 0" fill="none" stroke="#a96f00" stroke-width="9" stroke-linecap="round"/>
+    <path d="M609 248h130" stroke="#1f6a43" stroke-width="10" stroke-linecap="round" opacity=".7"/>
+
+    <text x="956" y="178" fill="#174d33" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="800" letter-spacing="0">Mountain green</text>
+    <circle cx="979" cy="216" r="12" fill="#1f6a43"/>
+    <circle cx="1018" cy="216" r="12" fill="#7a9b84"/>
+    <circle cx="1057" cy="216" r="12" fill="#a96f00"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <path d="M720 370c-33-11-74 16-89 69-16 57 0 129 39 154 35 23 76-9 88-70 14-68 1-140-38-153Z" fill="#30201d"/>
+    <path d="M984 370c33-11 74 16 89 69 16 57 0 129-39 154-35 23-76-9-88-70-14-68-1-140 38-153Z" fill="#30201d"/>
+    <path d="M688 387c0-100 71-166 164-166s164 66 164 166c0 111-62 207-164 207s-164-96-164-207Z" fill="url(#coat)"/>
+    <path d="M724 388c12-76 61-126 128-126s116 50 128 126c-33-37-75-58-128-58s-95 21-128 58Z" fill="#9b776b" opacity=".26"/>
+    <path d="M741 426c-22 35-35 82-31 123 21 39 68 72 142 72s121-33 142-72c4-41-9-88-31-123-29-42-66-64-111-64s-82 22-111 64Z" fill="url(#muzzle)"/>
+
+    <path d="M780 368c-29 0-52 24-52 56 0 33 23 58 52 58 30 0 53-25 53-58 0-32-23-56-53-56Z" fill="#35231f" opacity=".5"/>
+    <path d="M924 368c29 0 52 24 52 56 0 33-23 58-52 58-30 0-53-25-53-58 0-32 23-56 53-56Z" fill="#35231f" opacity=".5"/>
+    <circle cx="786" cy="408" r="24" fill="url(#eye)"/>
+    <circle cx="918" cy="408" r="24" fill="url(#eye)"/>
+    <circle cx="794" cy="398" r="7" fill="#fff6e8" opacity=".9"/>
+    <circle cx="926" cy="398" r="7" fill="#fff6e8" opacity=".9"/>
+
+    <path d="M794 485c8-30 28-46 58-46s50 16 58 46c8 31-16 66-58 66s-66-35-58-66Z" fill="#4b322e"/>
+    <path d="M807 481c6-22 22-34 45-34s39 12 45 34c5 20-15 40-45 40s-50-20-45-40Z" fill="#211413"/>
+    <path d="M825 476c5-10 15-16 27-16s22 6 27 16c-7-3-16-5-27-5s-20 2-27 5Z" fill="#936f67" opacity=".62"/>
+    <path d="M852 522v39" fill="none" stroke="#241716" stroke-width="10" stroke-linecap="round"/>
+    <path d="M803 561c17 19 35 28 49 28s32-9 49-28" fill="none" stroke="#241716" stroke-width="10" stroke-linecap="round"/>
+  </g>
+
+  <g aria-hidden="true">
+    <circle cx="1044" cy="321" r="24" fill="#f8fbf7" opacity=".9"/>
+    <circle cx="1104" cy="366" r="15" fill="#f8fbf7" opacity=".72"/>
+    <circle cx="617" cy="329" r="18" fill="#f8fbf7" opacity=".72"/>
+    <path d="M1050 321c7-18 15-18 23 0M1079 321c7-18 15-18 23 0M1108 321c7-18 15-18 23 0" fill="none" stroke="#a96f00" stroke-width="7" stroke-linecap="round"/>
+    <path d="M1028 336c29 17 73 18 119 2" fill="none" stroke="#1f6a43" stroke-width="8" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -1,0 +1,19 @@
+[general]
+status_path = "~/.local/share/vdirsyncer/status/"
+
+[pair icloud_calendar]
+a = "icloud_remote"
+b = "icloud_local"
+collections = ["from a", "from b"]
+conflict_resolution = "a wins"
+
+[storage icloud_remote]
+type = "caldav"
+url = "https://caldav.icloud.com/"
+username = "APPLE_ID_EMAIL_HERE"
+password.fetch = ["command", "cat", "~/.config/vdirsyncer/icloud_password"]
+
+[storage icloud_local]
+type = "filesystem"
+path = "~/.local/share/vdirsyncer/calendars/"
+fileext = ".ics"

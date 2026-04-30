@@ -1,6 +1,19 @@
 .openclaw/
+DREAMS.md
+memory/.dreams/
+memory/
+boba-beast-lauren-birthday-2026-04-29.png
+work/tasks/email-lauren-birthday-good-morning-2026-04-29*
+work/mda/
+memory/assets/
+memory/dreaming/
+.learnings/
+.clawhub/
 state/
 state/health-harness/.env.local
+*.py[cod]
+__pycache__/
+.venvs/
 
 AGENTS.md
 BOOTSTRAP.md
@@ -9,3 +22,5 @@ IDENTITY.md
 SOUL.md
 TOOLS.md
 USER.md
+
+.venv/

@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">BearClaw Boba Ops Mark</title>
+  <desc id="desc">Executive green mountain badge with a restrained chocolate lab companion portrait inspired by Boba.</desc>
+  <defs>
+    <linearGradient id="field" x1="64" x2="448" y1="36" y2="476" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f8fbf7"/>
+      <stop offset=".52" stop-color="#dcebe2"/>
+      <stop offset="1" stop-color="#c4d8cb"/>
+    </linearGradient>
+    <linearGradient id="mountainDeep" x1="101" x2="420" y1="139" y2="445" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7a9b84"/>
+      <stop offset=".55" stop-color="#2f7650"/>
+      <stop offset="1" stop-color="#174d33"/>
+    </linearGradient>
+    <linearGradient id="mountainSoft" x1="80" x2="337" y1="167" y2="417" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#9bb29e"/>
+      <stop offset=".6" stop-color="#3f845c"/>
+      <stop offset="1" stop-color="#1f6a43"/>
+    </linearGradient>
+    <linearGradient id="coat" x1="162" x2="355" y1="158" y2="381" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6f5249"/>
+      <stop offset=".45" stop-color="#4b332f"/>
+      <stop offset="1" stop-color="#2b1d1b"/>
+    </linearGradient>
+    <linearGradient id="muzzle" x1="194" x2="328" y1="260" y2="391" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#80615a"/>
+      <stop offset=".58" stop-color="#543a36"/>
+      <stop offset="1" stop-color="#30211f"/>
+    </linearGradient>
+    <radialGradient id="eye" cx=".36" cy=".32" r=".72">
+      <stop offset="0" stop-color="#b98852"/>
+      <stop offset=".5" stop-color="#5b3727"/>
+      <stop offset="1" stop-color="#17100f"/>
+    </radialGradient>
+    <filter id="softShadow" x="-16%" y="-14%" width="132%" height="132%">
+      <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#192d23" flood-opacity=".16"/>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="72" fill="#eaf0ec"/>
+  <rect x="42" y="42" width="428" height="428" rx="58" fill="url(#field)" stroke="#d4ded8" stroke-width="8"/>
+
+  <g opacity=".96">
+    <path d="M62 361 181 146l122 215Z" fill="url(#mountainSoft)"/>
+    <path d="M164 361 319 105l151 256Z" fill="url(#mountainDeep)"/>
+    <path d="M181 146 151 201l59-20Z" fill="#f8fbf7" opacity=".55"/>
+    <path d="M319 105 281 168l73-27Z" fill="#f8fbf7" opacity=".58"/>
+    <path d="M62 361h408v61c0 26-21 48-48 48H90c-27 0-48-22-48-48v-61Z" fill="#174d33" opacity=".16"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <path d="M130 232c-19-5-41 11-48 39-7 30 2 67 24 80 20 12 42-5 48-37 6-35-2-76-24-82Z" fill="#3a2724"/>
+    <path d="M382 232c19-5 41 11 48 39 7 30-2 67-24 80-20 12-42-5-48-37-6-35 2-76 24-82Z" fill="#3a2724"/>
+    <path d="M142 243c0-72 50-119 114-119s114 47 114 119c0 76-44 142-114 142s-114-66-114-142Z" fill="url(#coat)"/>
+    <path d="M169 244c8-53 42-88 87-88s79 35 87 88c-22-27-51-41-87-41s-65 14-87 41Z" fill="#7b5d53" opacity=".32"/>
+    <path d="M180 268c-14 23-23 54-20 82 14 27 47 50 96 50s82-23 96-50c3-28-6-59-20-82-19-28-45-44-76-44s-57 16-76 44Z" fill="url(#muzzle)"/>
+
+    <path d="M207 231c-19 0-34 16-34 37 0 22 15 38 34 38 20 0 35-16 35-38 0-21-15-37-35-37Z" fill="#382521" opacity=".55"/>
+    <path d="M305 231c19 0 34 16 34 37 0 22-15 38-34 38-20 0-35-16-35-38 0-21 15-37 35-37Z" fill="#382521" opacity=".55"/>
+    <circle cx="211" cy="257" r="17" fill="url(#eye)"/>
+    <circle cx="301" cy="257" r="17" fill="url(#eye)"/>
+    <circle cx="217" cy="249" r="5" fill="#fff7e8" opacity=".86"/>
+    <circle cx="307" cy="249" r="5" fill="#fff7e8" opacity=".86"/>
+
+    <path d="M218 307c5-20 19-31 38-31s33 11 38 31c5 20-11 44-38 44s-43-24-38-44Z" fill="#4b3330"/>
+    <path d="M226 305c4-15 15-24 30-24s26 9 30 24c3 13-10 27-30 27s-33-14-30-27Z" fill="#2b1a1a"/>
+    <path d="M237 301c3-7 10-11 19-11s16 4 19 11c-4-2-11-4-19-4s-15 2-19 4Z" fill="#86645e" opacity=".58"/>
+    <path d="M256 332v29" fill="none" stroke="#271817" stroke-width="8" stroke-linecap="round"/>
+    <path d="M221 361c12 13 25 19 35 19s23-6 35-19" fill="none" stroke="#2a1b19" stroke-width="8" stroke-linecap="round"/>
+
+    <path d="M172 323c-20 4-39 10-56 20" fill="none" stroke="#2b1d1b" stroke-width="2" stroke-linecap="round" opacity=".34"/>
+    <path d="M174 342c-18 7-34 16-48 27" fill="none" stroke="#2b1d1b" stroke-width="2" stroke-linecap="round" opacity=".3"/>
+    <path d="M340 323c20 4 39 10 56 20" fill="none" stroke="#2b1d1b" stroke-width="2" stroke-linecap="round" opacity=".34"/>
+    <path d="M338 342c18 7 34 16 48 27" fill="none" stroke="#2b1d1b" stroke-width="2" stroke-linecap="round" opacity=".3"/>
+  </g>
+
+  <path d="M86 94h96" stroke="#1f6a43" stroke-width="10" stroke-linecap="round" opacity=".8"/>
+  <path d="M86 117h54" stroke="#a96f00" stroke-width="8" stroke-linecap="round" opacity=".75"/>
+  <path d="M345 430h76" stroke="#1f6a43" stroke-width="10" stroke-linecap="round" opacity=".7"/>
+</svg>

@@ -439,6 +439,60 @@ Default non-standing authority:
 
 Standing authority must never be assumed from convenience.
 
+### 10A. Standing Delegation: Routine Appointment Scheduling
+
+Status: active unless explicitly revoked by the principal.
+
+This standing delegation grants a narrow Level 5 exception for routine scheduling only.
+
+CoS may schedule routine household/admin appointments when all conditions are true:
+- vendor/service is explicitly named by the principal or on an approved allowlist
+- request is low-risk and pre-scoped
+- scheduling constraints are provided (date windows, day/time preferences, location)
+- no payment, deposit, financing, contract signature, diagnosis approval, or repair approval is required
+- no credentials, passwords, 2FA, SSN, license numbers, medical attestations, or sensitive access instructions are required
+- terms are unambiguous and within stated constraints
+
+Allowed under this delegation:
+- identify correct vendor contact lane
+- read calendar to find matching availability windows
+- submit a routine service request through an available vendor web form when the request is fully bounded
+- confirm appointment time when within constraints
+- create calendar hold/event only for a confirmed appointment
+- disclose ordinary scheduling contact/location details only when the principal supplied them for the named vendor/service request
+- for home-maintenance scheduling packets, prepare a concise Lauren update in the closeout path only for `BOOKED` or `REQUESTED_AWAITING_CONFIRMATION`
+
+Not allowed under this delegation:
+- payment entry or payment approval
+- scope-of-work or repair authorization beyond scheduling
+- acceptance of ambiguous fees or terms without principal approval
+- disclosure of sensitive identity/access information beyond ordinary scheduling contact/location details supplied for the named request
+- commitments outside stated windows/constraints
+
+Default decision when boundary is hit:
+- stop and escalate with one decision-grade ask
+
+Required closeout state for delegated routine scheduling packets (exactly one):
+- `BOOKED`: vendor, service, location, confirmed date/time window, and whether calendar hold/event was created
+- `REQUESTED_AWAITING_CONFIRMATION`: vendor service/request form was submitted, but no confirmed appointment time exists yet; include vendor, service, location, requested windows, confirmation channel, and follow-up checkpoint
+- `CLARIFY_BEFORE_SCHEDULING`: single missing or mismatched scheduling constraint (date/time window, callback window, location, contact detail, service-type selection, preference, or no matching calendar window) and exact clarification requested
+- `NEEDS_APPROVAL`: single approval item (cost/payment, unapproved address disclosure, terms ambiguity, access instruction, or scope boundary) and exact approval requested
+- `BLOCKED`: concrete blocker outside CoS control or authority after the available web-form path has been checked or attempted (for example vendor requires customer phone booking, required tool is unavailable, web form requires unsupported CAPTCHA/login/payment, or request exceeds scheduling authority) plus prepared next step
+
+Additional closeout requirement for home-maintenance packets:
+- include `Lauren update` status as one of:
+  - `sent` (include channel and timestamp) when explicit send authority exists
+  - `drafted` (include draft path/channel) when send authority is not granted
+  - `blocked` (include blocker and exact approval/clarification needed)
+- content rule: keep the Lauren update concise and decision-grade only (appointment status, vendor, date/time window if known, and next checkpoint). Do not include execution detail or troubleshooting chatter.
+
+Bounded category posture:
+- Home maintenance: allowed under this delegation when constraints are met
+- Admin errands: allowed for routine scheduling only
+- Professional admin: allowed for routine scheduling only
+- Healthcare: scheduling only; no medical decisions/forms/attestations
+- Travel: research/propose by default; booking requires stronger explicit constraints
+
 ## 11. Ambiguity Handling
 
 When intent is ambiguous, step down to the safer class.

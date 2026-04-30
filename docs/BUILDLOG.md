@@ -48,3 +48,29 @@
 - 2026-04-22: added `docs/architecture/runtime-validation-checklist.md` after live smoke showed health checks can pass while stale sessions preserve bad disposition behavior
 - 2026-04-22: added `docs/architecture/orchestration-smoke-tests.md` to capture golden and red-team scenarios for CoS/orchestrator drift
 - 2026-04-22: added `docs/architecture/stack-inefficiency-audit.md` to capture current inefficiencies and cleanup sequence
+- 2026-04-22: added a standing delegation policy for routine appointment scheduling in `AUTHORITY_MATRIX.md`, including hard stop conditions for payment/credentials/ambiguous terms and exact closeout states `BOOKED`, `NEEDS_APPROVAL`, and `BLOCKED`
+- 2026-04-22: added a routine scheduling outcome contract to `docs/architecture/cos-orchestration-control-plane.md` so CoS returns only decision-grade booking outcomes without prep chatter unless requested
+- 2026-04-22: added explicit no-noise operator rule: do not send "no follow-up needed", call scripts, or prep text unless asked; for external tasks return only `BOOKED`, `NEEDS_APPROVAL`, or `BLOCKED`
+- 2026-04-22: split routine scheduling clarification out of `NEEDS_APPROVAL`/`BLOCKED` as `CLARIFY_BEFORE_SCHEDULING` for missing date/time/location preferences or no matching calendar window
+- 2026-04-23: added `REQUESTED_AWAITING_CONFIRMATION` for routine scheduling requests submitted through vendor forms without a confirmed appointment time
+- 2026-04-23: clarified that bounded routine vendor web-form submission is allowed when ordinary contact/location details are supplied for that named request; missing form fields map to `CLARIFY_BEFORE_SCHEDULING`, not `BLOCKED`
+
+## Model Routing Update
+
+- 2026-04-23: updated orchestrator doctrine to a three-tier model policy: `openai-codex/gpt-5.5` for frontier BearClaw and high-ambiguity operator work, `openai-codex/gpt-5.4` for execution-heavy coding and verification, and `openai-codex/gpt-5.3-codex` for low-cost routing and packet generation
+
+## OpenClaw Runtime Runbook
+
+- 2026-04-26: added `scripts/observability/openclaw-status-hotfix.sh` to re-apply and verify the `openclaw status` performance hotfix after OpenClaw updates
+- 2026-04-26: added `scripts/observability/openclaw-update-with-status-hotfix.sh` so `openclaw update` can automatically re-apply and verify the status hotfix in one command
+- 2026-04-26: added `docs/incidents/2026-04-26-openclaw-status-native-hook-and-hotfix-runbook.md` with step-by-step status and native-hook relay troubleshooting/rollback commands
+
+## Scheduling Guardrails
+
+- 2026-04-27: added a home-maintenance closeout guardrail requiring a `Lauren update` checkpoint (`sent`, `drafted`, or `blocked`) in `AUTHORITY_MATRIX.md`, `docs/architecture/cos-orchestration-control-plane.md`, and `docs/architecture/bearclaw-orchestration-contract.md`
+- 2026-04-27: narrowed that guardrail to `BOOKED` and `REQUESTED_AWAITING_CONFIRMATION` only, and constrained content to concise decision-grade updates (no execution detail)
+
+## Ops Dashboard UX
+
+- 2026-04-27: added `scripts/observability/launch_ops_dashboard_app.sh` to refresh observability JSON, ensure a local loopback server, and open `ui/ops-dashboard` in app-window mode
+- 2026-04-27: added `scripts/observability/install_ops_dashboard_desktop_entry.sh` to install a Linux desktop entry plus `~/Desktop/CoS Ops Dashboard.desktop` double-click shortcut

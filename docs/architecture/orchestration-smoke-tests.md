@@ -190,6 +190,31 @@ Failure signal:
 
 - duplicate draft, event, label action, or state entry
 
+### 11. Stale Native-Hook Relay
+
+Input shape:
+
+- gateway health or status is green
+- Telegram/direct session or delegated host-mutating work reports `Native hook relay unavailable`
+
+Expected behavior:
+
+- do not claim execution substrate healthy from gateway health alone
+- run the local native-hook/write-path canary
+- mark terminal-local write path `ok`, `blocked`, `degraded`, or `error`
+- keep live Telegram-session native-hook status `unverified` unless a real live-session smoke succeeds from the exact Telegram session
+- use the live-session smoke contract when Telegram execution health is in scope:
+  `python3 scripts/observability/live_session_native_hook_smoke.py --execution-origin telegram-live-session`
+- fail closed when `Native hook relay unavailable`, `native hook relay not found`, or `relay unavailable` appears
+- return one concise `BLOCKED` or `EXCEPTION` status when native-hook relay remains unavailable
+
+Failure signal:
+
+- gateway OK is treated as proof that host-mutating Telegram/Codex execution is healthy
+- a terminal-local smoke result is treated as proof of this Telegram session's native-hook relay
+- repeated retries continue inside the stale session
+- raw relay chatter replaces a resumable blocker and repair path
+
 ## Minimal Review Cadence
 
 Run these scenarios after:

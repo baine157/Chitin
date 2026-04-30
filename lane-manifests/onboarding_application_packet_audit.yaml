@@ -1,0 +1,63 @@
+lane_id: onboarding_application_packet_audit
+workspace: /home/baine/openclaw/onboarding-ops
+
+allowed_packet_types:
+  - application_packet_audit
+
+commands:
+  validator:
+    id: validate_comphealth_mycomphealth_packet
+    argv:
+      - python3
+      - /home/baine/openclaw/onboarding-ops/scripts/validate-application-packet.py
+      - --packet-dir
+      - /home/baine/openclaw/onboarding-ops/work/application-packets/comphealth-mycomphealth
+      - --json
+  dry_run:
+    id: dry_run_guarded_onboarding_application_packet_audit
+    argv:
+      - python3
+      - scripts/cos/guarded_packet_runner.py
+      - --dry-run
+      - --packet
+      - state/cos/packets/queue/PKT-example-onboarding-application-packet-audit.json
+
+live_run:
+  allowed: true
+  authority_max_level: 2
+  external_commit_allowed: false
+
+outputs:
+  status_path: /home/baine/openclaw/orchestrator/state/observability/lane-status/onboarding_application_packet_audit.json
+  closeout_dir: /home/baine/openclaw/orchestrator/state/cos/packets/closeouts
+
+forbidden_actions:
+  - portal_login
+  - bitwarden
+  - password_token_mfa_cookie_session_handling
+  - submit
+  - send
+  - upload
+  - attest
+  - sign
+  - certify
+  - finalize
+  - external_commit
+
+human_gates:
+  - post_login_fields_inaccessible
+  - any_external_action
+  - credential_needed
+  - authority_level_gt_2
+
+canary:
+  id: onboarding_application_packet_audit_canary
+  command:
+    - python3
+    - /home/baine/openclaw/onboarding-ops/scripts/validate-application-packet.py
+    - --packet-dir
+    - /home/baine/openclaw/onboarding-ops/work/application-packets/comphealth-mycomphealth
+    - --json
+  expected_statuses:
+    - BLOCKED
+    - PARTIAL
