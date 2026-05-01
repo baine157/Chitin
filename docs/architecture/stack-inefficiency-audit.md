@@ -89,6 +89,13 @@ Either:
 
 Do not silently promote health data to orchestrator canonical state.
 
+Current status:
+
+- `docs/architecture/health-harness-v1.md` now explicitly marks the harness as a
+  temporary personal-ops-adjacent experiment.
+- This closes the immediate ambiguity; the longer-term move to a dedicated
+  personal-ops workspace remains optional.
+
 ### 5. Runtime Truth Still Lives Outside Docs
 
 Problem:

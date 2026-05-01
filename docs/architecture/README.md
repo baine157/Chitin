@@ -16,12 +16,18 @@ Architecture files define reusable operating mechanics:
 - `packet-and-closeout-schema.md`: packet format, closeout format, evidence rules, idempotency.
 - `state-routing-blast-radius-policy.md`: state freshness, routing boundaries, divergence handling, blast radius, identifiers.
 - `runtime-validation-checklist.md`: required gates before claiming live BearClaw/OpenClaw stability, including execution-plane smoke and relay repair proof.
+- `execution-plane-health-cycle.md`: one bounded local cycle for decisive execution-plane smoke, queue supervisor, and dashboard refresh.
 - `orchestration-smoke-tests.md`: golden and red-team scenarios for contract drift.
 - `stack-inefficiency-audit.md`: current inefficiencies, risks, and cleanup sequence.
+- `stability-incremental-gains-2026-04-30.md`: bounded ledger for the latest seven stability slices and their evidence.
 - `guarded-packet-runner-v0.md`: fail-closed packet execution lane for autonomous CoS maintenance.
 - `queue-supervisor-sla-v0.md`: queue SLA monitor and alert contract for packet execution health.
 - `dreaming-and-reflection-boundary.md`: where reflective synthesis belongs, where it does not, and why it is not execution proof.
 - `health-harness-v1.md`: local-first personal health harness concept; this is not core orchestration doctrine.
+
+Manifest surface:
+
+- `../../lane-manifests/README.md`: manifest-backed lane inventory and validation command.
 
 Organization rule:
 

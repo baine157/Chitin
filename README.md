@@ -37,9 +37,11 @@ Detailed layer separation: `docs/architecture/cos-orchestration-control-plane.md
 Packet and closeout rules: `docs/architecture/packet-and-closeout-schema.md`.
 State, routing, and blast-radius rules: `docs/architecture/state-routing-blast-radius-policy.md`.
 Runtime validation: `docs/architecture/runtime-validation-checklist.md`.
+Execution-plane health cycle: `docs/architecture/execution-plane-health-cycle.md`.
 Drift tests: `docs/architecture/orchestration-smoke-tests.md`.
 Current inefficiency audit: `docs/architecture/stack-inefficiency-audit.md`.
 Dreaming/reflection boundary: `docs/architecture/dreaming-and-reflection-boundary.md`.
+Lane manifests: `lane-manifests/README.md`.
 
 ## Reflection Boundary
 

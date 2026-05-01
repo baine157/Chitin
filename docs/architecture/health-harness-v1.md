@@ -1,5 +1,22 @@
 # Health Harness v1 (Lightweight)
 
+## Routing Status
+
+This is a local/personal experiment, not core orchestrator doctrine.
+
+It may remain here only as a temporary personal-ops-adjacent harness because it
+can inform Chief-of-Staff decisions about energy, sleep debt, and training load.
+It must not become a general OpenClaw control-plane dependency, dashboard truth
+source, or domain truth store.
+
+Future cleanup path:
+
+- move the implementation to a dedicated personal-ops workspace, or
+- keep only a routing note here and store health data outside `orchestrator/`.
+
+Until that move happens, all health data stays local, ignored, and separate from
+CoS packet execution state.
+
 ## Goal
 
 Track sleep, lifting, weight, and nutrition with a local-first loop and minimal overhead.
