@@ -1,0 +1,55 @@
+lane_id: deck_ops_study_cards
+workspace: /home/baine/openclaw/deck-ops
+
+allowed_packet_types:
+  - study_guide_to_cloze
+  - anki_deck_maintenance
+  - deterministic_card_export
+
+commands:
+  validator:
+    id: deck_ops_python_compile
+    argv:
+      - bash
+      - -lc
+      - cd /home/baine/openclaw/deck-ops && python3 -m py_compile scripts/anki_connect.py scripts/deck_utils.py scripts/ingest_cloze.py scripts/study_guide_to_cloze_csv.py
+
+live_run:
+  allowed: true
+  authority_max_level: 2
+  external_commit_allowed: false
+
+outputs:
+  status_path: /home/baine/openclaw/orchestrator/state/observability/lane-status/deck_ops_study_cards.json
+  closeout_dir: /home/baine/openclaw/orchestrator/state/cos/packets/closeouts
+
+forbidden_actions:
+  - portal_login
+  - bitwarden
+  - password_token_mfa_cookie_session_handling
+  - submit
+  - send
+  - upload
+  - attest
+  - sign
+  - certify
+  - finalize
+  - external_commit
+
+human_gates:
+  - destructive_deck_change
+  - bulk_note_delete_or_overwrite
+  - live_anki_mutation
+  - any_external_action
+  - authority_level_gt_2
+
+canary:
+  id: deck_ops_python_compile_canary
+  command:
+    - bash
+    - -lc
+    - cd /home/baine/openclaw/deck-ops && python3 -m py_compile scripts/anki_connect.py scripts/deck_utils.py scripts/ingest_cloze.py scripts/study_guide_to_cloze_csv.py
+  expected_statuses:
+    - DONE
+    - PARTIAL
+    - BLOCKED

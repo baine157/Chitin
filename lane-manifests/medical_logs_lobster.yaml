@@ -1,0 +1,59 @@
+lane_id: medical_logs_lobster
+workspace: /home/baine/openclaw/medical-logs
+
+allowed_packet_types:
+  - lobster_engine_prepare
+  - local_case_log_draft
+  - runtime_readiness_check
+
+commands:
+  validator:
+    id: medical_logs_lobster_unittest
+    argv:
+      - python3
+      - -B
+      - -m
+      - unittest
+      - tests.test_lobster_engine
+
+live_run:
+  allowed: true
+  authority_max_level: 2
+  external_commit_allowed: false
+
+outputs:
+  status_path: /home/baine/openclaw/orchestrator/state/observability/lane-status/medical_logs_lobster.json
+  closeout_dir: /home/baine/openclaw/orchestrator/state/cos/packets/closeouts
+
+forbidden_actions:
+  - portal_login
+  - bitwarden
+  - password_token_mfa_cookie_session_handling
+  - submit
+  - send
+  - upload
+  - attest
+  - sign
+  - certify
+  - finalize
+  - external_commit
+
+human_gates:
+  - PHI_or_case_log_material
+  - append_prepare_or_submit_action
+  - portal_or_browser_identity_step
+  - any_external_action
+  - authority_level_gt_2
+
+canary:
+  id: medical_logs_lobster_unittest_canary
+  command:
+    - python3
+    - -B
+    - -m
+    - unittest
+    - tests.test_lobster_engine
+  expected_statuses:
+    - DONE
+    - PARTIAL
+    - BLOCKED

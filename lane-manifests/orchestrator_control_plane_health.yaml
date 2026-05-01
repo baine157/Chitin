@@ -1,0 +1,56 @@
+lane_id: orchestrator_control_plane_health
+workspace: /home/baine/openclaw/orchestrator
+
+allowed_packet_types:
+  - control_plane_health
+  - execution_plane_health
+  - dashboard_refresh
+
+commands:
+  validator:
+    id: orchestrator_control_plane_unittest
+    argv:
+      - python3
+      - -m
+      - unittest
+      - tests.test_execution_plane_truth
+      - tests.test_lane_promotion_check
+      - tests.test_guarded_packet_runner_readback
+      - tests.test_validate_lane_manifest
+
+live_run:
+  allowed: true
+  authority_max_level: 2
+  external_commit_allowed: false
+
+outputs:
+  status_path: /home/baine/openclaw/orchestrator/state/observability/lane-status/orchestrator_control_plane_health.json
+  closeout_dir: /home/baine/openclaw/orchestrator/state/cos/packets/closeouts
+
+forbidden_actions:
+  - portal_login
+  - bitwarden
+  - password_token_mfa_cookie_session_handling
+  - submit
+  - send
+  - upload
+  - attest
+  - sign
+  - certify
+  - finalize
+  - external_commit
+
+human_gates:
+  - any_external_action
+  - credential_needed
+  - authority_level_gt_2
+  - persistent_timer_enablement
+
+canary:
+  id: orchestrator_execution_plane_health_canary
+  command:
+    - scripts/observability/execution_plane_health_cycle.sh
+  expected_statuses:
+    - DONE
+    - PARTIAL
+    - BLOCKED

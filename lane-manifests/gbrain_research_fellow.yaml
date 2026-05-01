@@ -1,0 +1,55 @@
+lane_id: gbrain_research_fellow
+workspace: /home/baine/openclaw/gbrain
+
+allowed_packet_types:
+  - research_fellow_topic_sync
+  - research_fellow_garden_pass
+  - source_grounded_research_note
+
+commands:
+  validator:
+    id: gbrain_build
+    argv:
+      - npm
+      - run
+      - build
+
+live_run:
+  allowed: true
+  authority_max_level: 2
+  external_commit_allowed: false
+
+outputs:
+  status_path: /home/baine/openclaw/orchestrator/state/observability/lane-status/gbrain_research_fellow.json
+  closeout_dir: /home/baine/openclaw/orchestrator/state/cos/packets/closeouts
+
+forbidden_actions:
+  - portal_login
+  - bitwarden
+  - password_token_mfa_cookie_session_handling
+  - submit
+  - send
+  - upload
+  - attest
+  - sign
+  - certify
+  - finalize
+  - external_commit
+
+human_gates:
+  - new_project_lane
+  - source_claim_without_provenance
+  - cross_workspace_material
+  - any_external_action
+  - authority_level_gt_2
+
+canary:
+  id: gbrain_build_canary
+  command:
+    - npm
+    - run
+    - build
+  expected_statuses:
+    - DONE
+    - PARTIAL
+    - BLOCKED

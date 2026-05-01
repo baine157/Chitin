@@ -1,0 +1,55 @@
+lane_id: deepsea_general_topic_routing
+workspace: /home/baine/openclaw/deepsea-general
+
+allowed_packet_types:
+  - topic_routing
+  - remote_codex_intake
+  - group_surface_planning
+
+commands:
+  validator:
+    id: deepsea_general_boundary_files_present
+    argv:
+      - bash
+      - -lc
+      - cd /home/baine/openclaw/deepsea-general && test -f README.md && test -f TOPIC-ROUTING-RUNBOOK.md
+
+live_run:
+  allowed: true
+  authority_max_level: 2
+  external_commit_allowed: false
+
+outputs:
+  status_path: /home/baine/openclaw/orchestrator/state/observability/lane-status/deepsea_general_topic_routing.json
+  closeout_dir: /home/baine/openclaw/orchestrator/state/cos/packets/closeouts
+
+forbidden_actions:
+  - portal_login
+  - bitwarden
+  - password_token_mfa_cookie_session_handling
+  - submit
+  - send
+  - upload
+  - attest
+  - sign
+  - certify
+  - finalize
+  - external_commit
+
+human_gates:
+  - private_lane_material
+  - medical_or_credentialing_details
+  - execution_without_GO_CODEX
+  - any_external_action
+  - authority_level_gt_2
+
+canary:
+  id: deepsea_general_boundary_files_canary
+  command:
+    - bash
+    - -lc
+    - cd /home/baine/openclaw/deepsea-general && test -f README.md && test -f TOPIC-ROUTING-RUNBOOK.md
+  expected_statuses:
+    - DONE
+    - PARTIAL
+    - BLOCKED

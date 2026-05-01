@@ -1,0 +1,53 @@
+lane_id: rescue_gateway
+workspace: /home/baine/openclaw/rescue-gateway
+
+allowed_packet_types:
+  - gateway_incident_triage
+  - rescue_status_check
+  - main_gateway_recovery_packet
+
+commands:
+  validator:
+    id: rescue_gateway_status_check
+    argv:
+      - bash
+      - /home/baine/openclaw/rescue-gateway/bin/check-rescue-gateway.sh
+
+live_run:
+  allowed: true
+  authority_max_level: 2
+  external_commit_allowed: false
+
+outputs:
+  status_path: /home/baine/openclaw/orchestrator/state/observability/lane-status/rescue_gateway.json
+  closeout_dir: /home/baine/openclaw/orchestrator/state/cos/packets/closeouts
+
+forbidden_actions:
+  - portal_login
+  - bitwarden
+  - password_token_mfa_cookie_session_handling
+  - submit
+  - send
+  - upload
+  - attest
+  - sign
+  - certify
+  - finalize
+  - external_commit
+
+human_gates:
+  - restart_main_gateway
+  - profile_or_auth_change
+  - topology_exposure_change
+  - any_external_action
+  - authority_level_gt_2
+
+canary:
+  id: rescue_gateway_status_canary
+  command:
+    - bash
+    - /home/baine/openclaw/rescue-gateway/bin/check-rescue-gateway.sh
+  expected_statuses:
+    - DONE
+    - PARTIAL
+    - BLOCKED

@@ -106,7 +106,7 @@ def validate_manifest_payload(payload: dict[str, Any], *, source: Path | None = 
     if not isinstance(authority_max_level, int):
         raise ManifestValidationError("live_run.authority_max_level must be an integer")
     if authority_max_level > 2:
-        raise ManifestValidationError("live_run.authority_max_level must be <= 2 for onboarding manifest")
+        raise ManifestValidationError("live_run.authority_max_level must be <= 2 for manifest-backed lanes")
     if authority_max_level < 1:
         raise ManifestValidationError("live_run.authority_max_level must be >= 1")
     external_commit_allowed = live_run.get("external_commit_allowed")
@@ -128,16 +128,18 @@ def validate_manifest_payload(payload: dict[str, Any], *, source: Path | None = 
             "canary.expected_statuses contains unsupported status: " + ", ".join(invalid_statuses)
         )
 
-    if lane_id == "onboarding_application_packet_audit":
-        if workspace != ONBOARDING_WORKSPACE:
-            raise ManifestValidationError(f"workspace must be {ONBOARDING_WORKSPACE}")
-        missing_actions = sorted(REQUIRED_FORBIDDEN_ACTIONS - forbidden_actions)
-        if missing_actions:
-            raise ManifestValidationError(
-                "forbidden_actions missing required final-action prohibition: " + ", ".join(missing_actions)
-            )
-        if not validator_argv_is_safe(validator_argv):
-            raise ManifestValidationError("commands.validator.argv contains unsafe command or action")
+    missing_actions = sorted(REQUIRED_FORBIDDEN_ACTIONS - forbidden_actions)
+    if missing_actions:
+        raise ManifestValidationError(
+            "forbidden_actions missing required final-action prohibition: " + ", ".join(missing_actions)
+        )
+    if not validator_argv_is_safe(validator_argv):
+        raise ManifestValidationError("commands.validator.argv contains unsafe command or action")
+    if not validator_argv_is_safe(canary_command):
+        raise ManifestValidationError("canary.command contains unsafe command or action")
+
+    if lane_id == "onboarding_application_packet_audit" and workspace != ONBOARDING_WORKSPACE:
+        raise ManifestValidationError(f"workspace must be {ONBOARDING_WORKSPACE}")
 
     return {
         "lane_id": lane_id,

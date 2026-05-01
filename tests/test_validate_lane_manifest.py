@@ -108,6 +108,18 @@ class LaneManifestValidationTests(unittest.TestCase):
         manifest["commands"]["validator"]["argv"] = ["bw", "get", "password", "example"]
         self.assert_invalid(manifest, "validator.argv contains unsafe")
 
+    def test_unsafe_canary_command_fails(self) -> None:
+        manifest = valid_manifest()
+        manifest["canary"]["command"] = ["bash", "-lc", "send email"]
+        self.assert_invalid(manifest, "canary.command contains unsafe")
+
+    def test_missing_final_action_for_generic_lane_fails(self) -> None:
+        manifest = valid_manifest()
+        manifest["lane_id"] = "gbrain_research_fellow"
+        manifest["workspace"] = "/home/baine/openclaw/gbrain"
+        manifest["forbidden_actions"].remove("submit")
+        self.assert_invalid(manifest, "missing required final-action prohibition: submit")
+
     def test_invalid_canary_status_fails(self) -> None:
         manifest = valid_manifest()
         manifest["canary"]["expected_statuses"] = ["DONE", "MAYBE"]

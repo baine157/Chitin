@@ -1,0 +1,55 @@
+lane_id: course_live_notes
+workspace: /home/baine/openclaw/course-live-notes
+
+allowed_packet_types:
+  - lecture_capture
+  - study_guide_generation
+  - cloze_export
+
+commands:
+  validator:
+    id: course_live_notes_python_compile
+    argv:
+      - bash
+      - -lc
+      - cd /home/baine/openclaw/course-live-notes && python3 -m py_compile scripts/audio_silence_gate.py scripts/notes_to_study_guide.py scripts/section_to_cloze_csv.py scripts/study_guide_to_ppt.py ui/course_live_notes_desktop.py
+
+live_run:
+  allowed: true
+  authority_max_level: 2
+  external_commit_allowed: false
+
+outputs:
+  status_path: /home/baine/openclaw/orchestrator/state/observability/lane-status/course_live_notes.json
+  closeout_dir: /home/baine/openclaw/orchestrator/state/cos/packets/closeouts
+
+forbidden_actions:
+  - portal_login
+  - bitwarden
+  - password_token_mfa_cookie_session_handling
+  - submit
+  - send
+  - upload
+  - attest
+  - sign
+  - certify
+  - finalize
+  - external_commit
+
+human_gates:
+  - active_recording_start_or_stop
+  - irreversible_session_cleanup
+  - audio_device_or_desktop_launcher_change
+  - any_external_action
+  - authority_level_gt_2
+
+canary:
+  id: course_live_notes_python_compile_canary
+  command:
+    - bash
+    - -lc
+    - cd /home/baine/openclaw/course-live-notes && python3 -m py_compile scripts/audio_silence_gate.py scripts/notes_to_study_guide.py scripts/section_to_cloze_csv.py scripts/study_guide_to_ppt.py ui/course_live_notes_desktop.py
+  expected_statuses:
+    - DONE
+    - PARTIAL
+    - BLOCKED
