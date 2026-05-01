@@ -14,6 +14,7 @@ import json
 import os
 import shutil
 import subprocess
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -119,17 +120,28 @@ def run_command(
             "stderr_excerpt": (exc.stderr or "")[:1000],
         }
 
-    output = (completed.stdout or "") + (completed.stderr or "")
-    return {
+    stdout_text = completed.stdout or ""
+    stderr_text = completed.stderr or ""
+    output = stdout_text + stderr_text
+    stdout_json = None
+    if stdout_text.strip().startswith("{"):
+        try:
+            stdout_json = json.loads(stdout_text)
+        except json.JSONDecodeError:
+            stdout_json = None
+    result = {
         "status": "ok" if completed.returncode == 0 else "failed",
         "ok": completed.returncode == 0,
         "command": shown,
         "exit_code": completed.returncode,
-        "stdout_excerpt": (completed.stdout or "")[:1000],
-        "stderr_excerpt": (completed.stderr or "")[:1000],
+        "stdout_excerpt": stdout_text[:1000],
+        "stderr_excerpt": stderr_text[:1000],
         "native_hook_relay_error_seen": "Native hook relay unavailable" in output
         or "native hook relay not found" in output,
     }
+    if isinstance(stdout_json, dict):
+        result["stdout_json"] = stdout_json
+    return result
 
 
 def gateway_probe() -> dict[str, Any]:
@@ -137,15 +149,19 @@ def gateway_probe() -> dict[str, Any]:
     command = ["openclaw", "gateway", "probe", "--json", *auth_args]
     display_command = ["openclaw", "gateway", "probe", "--json", *display_auth_args]
     result = run_command(command, timeout=20, display_command=display_command)
-    payload = None
-    if result.get("stdout_excerpt", "").strip().startswith("{"):
-        try:
-            payload = json.loads(result["stdout_excerpt"])
-        except json.JSONDecodeError:
-            payload = None
+    payload = result.get("stdout_json") if isinstance(result.get("stdout_json"), dict) else None
+    diagnostic_detail_status = "unverified"
+    if isinstance(payload, dict):
+        if payload.get("ok") is True and payload.get("degraded") is True:
+            diagnostic_detail_status = "degraded"
+        elif payload.get("ok") is True:
+            diagnostic_detail_status = "ok"
+        else:
+            diagnostic_detail_status = "failed"
     return {
         **result,
         "payload": payload,
+        "diagnostic_detail_status": diagnostic_detail_status,
         "auth_material_available": bool(auth_args),
         "role": "necessary_but_insufficient",
         "truth_note": "Gateway reachability does not prove native hook relay or shell execution health.",
@@ -153,9 +169,26 @@ def gateway_probe() -> dict[str, Any]:
 
 
 def hooks_check() -> dict[str, Any]:
-    result = run_command(["openclaw", "hooks", "check"], timeout=30)
+    attempts: list[dict[str, Any]] = []
+    for index in range(3):
+        result = run_command(["openclaw", "hooks", "check"], timeout=45)
+        result["attempt"] = index + 1
+        attempts.append(result)
+        if result.get("status") == "ok":
+            return {
+                **result,
+                "attempts": attempts,
+                "retry_summary": f"passed on attempt {index + 1} of 3",
+                "role": "necessary_but_insufficient",
+                "truth_note": "Hook registry readiness does not prove the current live session can invoke hooks.",
+            }
+        if index < 2:
+            time.sleep(2)
+    final = attempts[-1]
     return {
-        **result,
+        **final,
+        "attempts": attempts,
+        "retry_summary": "failed after 3 attempts",
         "role": "necessary_but_insufficient",
         "truth_note": "Hook registry readiness does not prove the current live session can invoke hooks.",
     }

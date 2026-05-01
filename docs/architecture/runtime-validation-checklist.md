@@ -120,8 +120,16 @@ Fail condition:
 Command:
 
 ```text
+scripts/observability/execution_plane_health_cycle.sh
+```
+
+Equivalent expanded form:
+
+```text
+python3 scripts/observability/native_hook_write_canary.py
 python3 scripts/observability/execution_plane_smoke.py --include-agent-smoke --agent-timeout 180
-python3 scripts/observability/collect_dashboard.py --check
+python3 scripts/cos/queue_supervisor.py --json
+python3 scripts/observability/collect_dashboard.py
 ```
 
 Pass condition:
@@ -133,12 +141,14 @@ Pass condition:
 - OpenClaw agent execution signal is `ok` when the agent smoke is in scope
 - external-action verification is reported as usable only with explicit readback
 - dashboard exposes `control_plane_vs_execution_plane`
+- gateway diagnostic detail is represented separately from gateway reachability
 
 Fail condition:
 
 - shell execution is blocked, failed, or unverified
 - OpenClaw agent execution is blocked, failed, or times out when in scope
 - gateway or hook registry status is treated as proof of shell or agent execution
+- gateway diagnostic detail timeout is treated as proof that machine execution is blocked when shell and agent smokes are green
 - `Native hook relay unavailable`, `native hook relay not found`, or `relay unavailable` appears in fresh evidence
 
 Limit:

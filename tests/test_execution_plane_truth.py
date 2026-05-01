@@ -22,7 +22,7 @@ class ExecutionPlaneTruthTests(unittest.TestCase):
             execution_plane_smoke={
                 "status": "unverified",
                 "signals": {
-                    "gateway": {"status": "ok"},
+                    "gateway": {"status": "ok", "diagnostic_detail_status": "degraded"},
                     "hooks_registry": {"status": "ok"},
                     "shell_execution": {"status": "ok"},
                     "openclaw_agent_execution": {"status": "unverified"},
@@ -35,6 +35,7 @@ class ExecutionPlaneTruthTests(unittest.TestCase):
         split = result["control_plane_vs_execution_plane"]
         self.assertEqual(result["status"], "unverified")
         self.assertEqual(split["gateway_alive"], "ok")
+        self.assertEqual(split["gateway_diagnostic_detail"], "degraded")
         self.assertEqual(split["native_relay_usable"], "unverified")
         self.assertEqual(split["shell_execution_usable"], "ok")
         self.assertIn("Do not claim sent/submitted/finalized", result["external_action_gate"])
@@ -89,6 +90,22 @@ class ExecutionPlaneTruthTests(unittest.TestCase):
         self.assertEqual(saved["status"], "unverified")
         self.assertEqual(saved["signals"]["shell_execution"]["status"], "ok")
         self.assertEqual(saved["signals"]["external_action_verification"]["status"], "unverified")
+
+    def test_gateway_payload_degraded_is_diagnostic_not_execution_failure(self) -> None:
+        with mock.patch.object(
+            execution_plane_smoke,
+            "run_command",
+            return_value={
+                "status": "ok",
+                "ok": True,
+                "stdout_json": {"ok": True, "degraded": True},
+                "stdout_excerpt": '{"ok":true,"degraded":true}',
+            },
+        ):
+            result = execution_plane_smoke.gateway_probe()
+
+        self.assertEqual(result["status"], "ok")
+        self.assertEqual(result["diagnostic_detail_status"], "degraded")
 
 
 if __name__ == "__main__":

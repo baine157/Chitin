@@ -339,12 +339,14 @@ def latest_closeouts(limit: int = 5) -> list[dict[str, Any]]:
     )[:limit]
 
 
-def packet_execution_summary(closeouts: list[dict[str, Any]], blocked_register_clear: bool) -> dict[str, Any]:
+def packet_execution_summary(
+    closeouts: list[dict[str, Any]], blocked_register_clear: bool, active_blocked_count: int
+) -> dict[str, Any]:
     blocked = [item for item in closeouts if item.get("status") == "BLOCKED"]
     partial = [item for item in closeouts if item.get("status") == "PARTIAL"]
     done = [item for item in closeouts if item.get("status") == "DONE"]
     warnings: list[dict[str, Any]] = []
-    if blocked and blocked_register_clear:
+    if blocked and blocked_register_clear and active_blocked_count == 0:
         warnings.append(
             {
                 "id": "blocked-closeout-register-divergence",
@@ -361,6 +363,7 @@ def packet_execution_summary(closeouts: list[dict[str, Any]], blocked_register_c
         "summary": {
             "closeout_count": len(closeouts),
             "blocked_count": len(blocked),
+            "active_blocked_packet_count": active_blocked_count,
             "partial_count": len(partial),
             "done_count": len(done),
         },
@@ -505,6 +508,15 @@ def signal_status(smoke: dict[str, Any], name: str, default: str = "unverified")
     return default
 
 
+def signal_field(smoke: dict[str, Any], name: str, field: str, default: str = "unverified") -> str:
+    signal = smoke.get("signals", {}).get(name)
+    if isinstance(signal, dict):
+        value = signal.get(field)
+        if isinstance(value, str) and value:
+            return value
+    return default
+
+
 def native_hook_truth(
     closeouts: list[dict[str, Any]],
     write_canary: dict[str, Any],
@@ -538,6 +550,12 @@ def native_hook_truth(
     agent_status = signal_status(execution_plane_smoke, "openclaw_agent_execution")
     codex_attach_status = signal_status(execution_plane_smoke, "codex_session_attach")
     external_verification_status = signal_status(execution_plane_smoke, "external_action_verification")
+    gateway_diagnostic_detail = signal_field(
+        execution_plane_smoke,
+        "gateway",
+        "diagnostic_detail_status",
+        signal_status(execution_plane_smoke, "gateway"),
+    )
     if hits:
         status = "degraded"
     elif execution_plane_status in {"blocked", "error", "degraded", "failed", "timeout"}:
@@ -556,6 +574,7 @@ def native_hook_truth(
         "control_plane_vs_execution_plane": {
             "telegram_cos_session": signal_status(execution_plane_smoke, "telegram_cos_session"),
             "gateway_alive": signal_status(execution_plane_smoke, "gateway"),
+            "gateway_diagnostic_detail": gateway_diagnostic_detail,
             "hooks_registry_ready": signal_status(execution_plane_smoke, "hooks_registry"),
             "native_relay_usable": live_smoke_status,
             "shell_execution_usable": shell_status,
@@ -718,9 +737,14 @@ def build_dashboard() -> dict[str, Any]:
     waiting_rows = first_table(waiting_on.text)
     queue_packets = [packet_summary(path) for path in safe_json_files(PACKETS / "queue")]
     blocked_packet_files = [packet_summary(path) for path in safe_json_files(PACKETS / "blocked")]
+    active_blocked_ids = {str(item.get("id")) for item in blocked_packet_files if item.get("id")}
     latest_guarded_closeouts = latest_closeouts(limit=25)
     blocked_register_clear = no_pending(blocked_packets.text)
-    packet_execution = packet_execution_summary(latest_guarded_closeouts, blocked_register_clear)
+    packet_execution = packet_execution_summary(
+        latest_guarded_closeouts,
+        blocked_register_clear,
+        active_blocked_count=len(blocked_packet_files),
+    )
     execution_substrate = native_hook_truth(
         latest_guarded_closeouts,
         native_hook_canary_state,
@@ -814,7 +838,8 @@ def build_dashboard() -> dict[str, Any]:
             "next_step": "review closeout blocker before rerun",
         }
         for item in latest_guarded_closeouts
-        if item.get("status") in {"BLOCKED", "PARTIAL"}
+        if item.get("status") == "PARTIAL"
+        or (item.get("status") == "BLOCKED" and str(item.get("packet_id") or item.get("id")) in active_blocked_ids)
     )
 
     done_with_proof = recent_closeout_sections(recent_closeouts.text, recent_closeouts.path)
