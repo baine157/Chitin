@@ -29,8 +29,9 @@ Use this thread as your CoS surface and run orchestration internally.
 
 - you give objective and priority
 - CoS converts requests into bounded packets
-- orchestrator executes packets and returns evidence
-- operator-visible updates stay at `start`, `blocked`, `done`
+- orchestrator frames, dispatches, tracks, and verifies packets
+- execution lanes and machine runners return evidence
+- operator-visible updates stay at `STARTED`, `BLOCKED`, `NEEDS DECISION`, `EXCEPTION`, or `DONE`
 
 Detailed layer separation: `docs/architecture/cos-orchestration-control-plane.md`.
 Packet and closeout rules: `docs/architecture/packet-and-closeout-schema.md`.

@@ -12,6 +12,7 @@ Use this checklist after:
 - gateway restart
 - security posture changes
 - connector or skill changes that affect orchestration
+- native-hook relay failures or repair work
 
 ## Required Gates
 
@@ -114,7 +115,63 @@ Fail condition:
 - planning-only request starts execution
 - runtime failure is surfaced as vague environment commentary
 
-### 6. Native-Hook / Write-Path Canary Gate
+### 6. Execution-Plane Smoke Gate
+
+Command:
+
+```text
+python3 scripts/observability/execution_plane_smoke.py --include-agent-smoke --agent-timeout 180
+python3 scripts/observability/collect_dashboard.py --check
+```
+
+Pass condition:
+
+- smoke result JSON parses at `state/observability/execution-plane-smoke.json`
+- gateway signal is `ok`
+- hooks registry signal is `ok`
+- shell execution signal is `ok`
+- OpenClaw agent execution signal is `ok` when the agent smoke is in scope
+- external-action verification is reported as usable only with explicit readback
+- dashboard exposes `control_plane_vs_execution_plane`
+
+Fail condition:
+
+- shell execution is blocked, failed, or unverified
+- OpenClaw agent execution is blocked, failed, or times out when in scope
+- gateway or hook registry status is treated as proof of shell or agent execution
+- `Native hook relay unavailable`, `native hook relay not found`, or `relay unavailable` appears in fresh evidence
+
+Limit:
+
+- This proves the machine execution plane from terminal-local context.
+- It does not prove that the exact live Telegram session can attach to that plane.
+
+### 7. Relay Repair Gate
+
+Command:
+
+```text
+python3 scripts/observability/repair_openclaw_relay.py --include-agent-smoke --agent-timeout 180
+```
+
+Pass condition:
+
+- repair artifact parses at `state/observability/openclaw-relay-repair.json`
+- stale task/session cleanup commands complete
+- gateway restart succeeds
+- gateway probe succeeds using configured gateway auth
+- `openclaw hooks check` reports `Ready: 4` and `Not ready: 0`
+- optional agent smoke returns `OK`
+- fresh OpenClaw logs show zero new native-hook relay errors
+
+Fail condition:
+
+- repair cannot restart or probe the gateway
+- hook registry remains not ready
+- agent smoke fails when included
+- fresh logs include relay-unavailable errors after repair
+
+### 8. Native-Hook / Write-Path Canary Gate
 
 Command:
 
@@ -143,7 +200,7 @@ Limit:
 - This terminal-local canary proves only local write/read/remove execution substrate.
 - It does not prove a live Telegram session native-hook relay; a live-session canary is a separate check.
 
-### 7. Live Telegram Session Native-Hook Smoke Gate
+### 9. Live Telegram Session Native-Hook Smoke Gate
 
 Manual packet to run from the exact Telegram session being tested:
 
@@ -187,6 +244,8 @@ Runtime validation:
 - security: pass|fail
 - sessions: pass|fail
 - behavior: pass|fail
+- execution-plane smoke: pass|fail|unverified
+- relay repair: pass|fail|unverified
 - native-hook/write canary: pass|fail|unverified
 - live Telegram native-hook smoke: pass|fail|unverified
 - residual risk:

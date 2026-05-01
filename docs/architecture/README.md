@@ -15,7 +15,7 @@ Architecture files define reusable operating mechanics:
 - `cos-orchestration-control-plane.md`: layer separation and command surface ownership.
 - `packet-and-closeout-schema.md`: packet format, closeout format, evidence rules, idempotency.
 - `state-routing-blast-radius-policy.md`: state freshness, routing boundaries, divergence handling, blast radius, identifiers.
-- `runtime-validation-checklist.md`: required gates before claiming live BearClaw/OpenClaw stability.
+- `runtime-validation-checklist.md`: required gates before claiming live BearClaw/OpenClaw stability, including execution-plane smoke and relay repair proof.
 - `orchestration-smoke-tests.md`: golden and red-team scenarios for contract drift.
 - `stack-inefficiency-audit.md`: current inefficiencies, risks, and cleanup sequence.
 - `guarded-packet-runner-v0.md`: fail-closed packet execution lane for autonomous CoS maintenance.
@@ -28,3 +28,4 @@ Organization rule:
 - Keep schemas and policies under `docs/architecture/`.
 - Keep local runtime data under `state/` or `.openclaw/`.
 - Do not turn this workspace into a truth store for domain repos.
+- Do not flatten "gateway reachable" into "machine execution available"; dashboard truth must keep the control plane and execution plane separate.

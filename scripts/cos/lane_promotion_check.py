@@ -28,6 +28,7 @@ FIXTURE_ROOT = ONBOARDING_ROOT / "tests" / "fixtures" / "application-packets"
 VALIDATOR_PATH = ONBOARDING_ROOT / "scripts" / "validate-application-packet.py"
 NATIVE_HOOK_SMOKE_PATH = REPO_ROOT / "state" / "observability" / "live-session-native-hook-smoke.json"
 LOCAL_WRITE_CANARY_PATH = REPO_ROOT / "state" / "observability" / "native-hook-write-canary.json"
+EXECUTION_PLANE_SMOKE_PATH = REPO_ROOT / "state" / "observability" / "execution-plane-smoke.json"
 TARGET_TRUST_LEVEL = "bounded_portal_adjacent_work"
 SUPPORTED_LANES = {"onboarding_application_packet_audit"}
 REQUIRED_FIXTURES = {
@@ -299,6 +300,16 @@ def run_checks(lane_id: str) -> dict[str, Any]:
 
     write_canary = freshness_state(LOCAL_WRITE_CANARY_PATH)
     smoke = freshness_state(NATIVE_HOOK_SMOKE_PATH)
+    execution_plane_smoke = freshness_state(EXECUTION_PLANE_SMOKE_PATH)
+    execution_plane_ok = execution_plane_smoke["status"] == "ok" and execution_plane_smoke["freshness"] == "fresh"
+    checks["execution_plane_smoke_fresh_ok"] = check(
+        "execution_plane_smoke_fresh_ok",
+        execution_plane_ok,
+        [rel(EXECUTION_PLANE_SMOKE_PATH)],
+        f"status={execution_plane_smoke['status']} freshness={execution_plane_smoke['freshness']}",
+    )
+    evidence.append(rel(EXECUTION_PLANE_SMOKE_PATH))
+
     canary_ok = write_canary["freshness"] in {"fresh", "stale", "missing", "invalid_timestamp"} and smoke[
         "freshness"
     ] in {"fresh", "stale", "missing", "invalid_timestamp"}
@@ -311,6 +322,32 @@ def run_checks(lane_id: str) -> dict[str, Any]:
     evidence.extend([rel(LOCAL_WRITE_CANARY_PATH), rel(NATIVE_HOOK_SMOKE_PATH)])
 
     execution_substrate = dashboard.get("system_trust", {}).get("execution_substrate", {}) if dashboard else {}
+    split = execution_substrate.get("control_plane_vs_execution_plane", {})
+    split_ok = (
+        split.get("gateway_alive") == "ok"
+        and split.get("hooks_registry_ready") == "ok"
+        and split.get("shell_execution_usable") == "ok"
+        and split.get("openclaw_agent_execution_usable") == "ok"
+        and split.get("telegram_cos_session") in {"ok", "unverified"}
+        and split.get("native_relay_usable") in {"ok", "unverified"}
+    )
+    checks["dashboard_execution_plane_truth_split"] = check(
+        "dashboard_execution_plane_truth_split",
+        split_ok,
+        [rel(DASHBOARD_PATH), rel(EXECUTION_PLANE_SMOKE_PATH)],
+        (
+            "gateway={gateway} hooks={hooks} shell={shell} agent={agent} "
+            "telegram={telegram} native_relay={native_relay}"
+        ).format(
+            gateway=split.get("gateway_alive"),
+            hooks=split.get("hooks_registry_ready"),
+            shell=split.get("shell_execution_usable"),
+            agent=split.get("openclaw_agent_execution_usable"),
+            telegram=split.get("telegram_cos_session"),
+            native_relay=split.get("native_relay_usable"),
+        ),
+    )
+
     gateway_role = execution_substrate.get("gateway_health", {}).get("role")
     telegram_status = execution_substrate.get("telegram_session_native_hook", {}).get("status") or smoke.get(
         "telegram_session_native_hook", {}

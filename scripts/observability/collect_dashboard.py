@@ -18,6 +18,7 @@ PACKETS = STATE_COS / "packets"
 DEFAULT_OUTPUT = REPO_ROOT / "state" / "observability" / "dashboard.json"
 NATIVE_HOOK_CANARY_PATH = REPO_ROOT / "state" / "observability" / "native-hook-write-canary.json"
 LIVE_SESSION_SMOKE_PATH = REPO_ROOT / "state" / "observability" / "live-session-native-hook-smoke.json"
+EXECUTION_PLANE_SMOKE_PATH = REPO_ROOT / "state" / "observability" / "execution-plane-smoke.json"
 CANARY_STALE_HOURS = 24
 RELAY_ERROR_PATTERN = re.compile(
     r"native hook relay not found|Native hook relay unavailable|relay unavailable",
@@ -456,10 +457,59 @@ def live_session_native_hook_smoke_state(path: Path = LIVE_SESSION_SMOKE_PATH) -
     }
 
 
+def execution_plane_smoke_state(path: Path = EXECUTION_PLANE_SMOKE_PATH) -> dict[str, Any]:
+    payload, warning = read_json(path)
+    if payload is None:
+        return {
+            "status": "unverified",
+            "freshness": "missing",
+            "source_file": rel(path),
+            "warning": warning or "missing",
+            "remediation_hint": (
+                "Run scripts/observability/execution_plane_smoke.py before claiming machine execution-plane health."
+            ),
+        }
+
+    timestamp = parse_timestamp(payload.get("timestamp"))
+    age_hours = None
+    freshness = "unknown"
+    observed_status = payload.get("status")
+    status = str(observed_status or "unverified")
+    if timestamp is None:
+        status = "unverified"
+        freshness = "invalid_timestamp"
+    else:
+        age_hours = round((datetime.now(timezone.utc) - timestamp).total_seconds() / 3600, 3)
+        if age_hours > CANARY_STALE_HOURS:
+            status = "unverified"
+            freshness = "stale"
+        else:
+            freshness = "fresh"
+
+    return {
+        "status": status,
+        "observed_status": observed_status,
+        "freshness": freshness,
+        "age_hours": age_hours,
+        "stale_after_hours": CANARY_STALE_HOURS,
+        "source_file": rel(path),
+        "payload": payload,
+        "signals": payload.get("signals", {}) if isinstance(payload.get("signals"), dict) else {},
+    }
+
+
+def signal_status(smoke: dict[str, Any], name: str, default: str = "unverified") -> str:
+    signal = smoke.get("signals", {}).get(name)
+    if isinstance(signal, dict):
+        return str(signal.get("status") or default)
+    return default
+
+
 def native_hook_truth(
     closeouts: list[dict[str, Any]],
     write_canary: dict[str, Any],
     live_session_smoke: dict[str, Any],
+    execution_plane_smoke: dict[str, Any],
 ) -> dict[str, Any]:
     hits: list[dict[str, Any]] = []
     for item in closeouts:
@@ -483,26 +533,47 @@ def native_hook_truth(
                 )
     write_status = write_canary.get("status")
     live_smoke_status = live_session_smoke.get("status")
+    execution_plane_status = execution_plane_smoke.get("status")
+    shell_status = signal_status(execution_plane_smoke, "shell_execution")
+    agent_status = signal_status(execution_plane_smoke, "openclaw_agent_execution")
+    codex_attach_status = signal_status(execution_plane_smoke, "codex_session_attach")
+    external_verification_status = signal_status(execution_plane_smoke, "external_action_verification")
     if hits:
+        status = "degraded"
+    elif execution_plane_status in {"blocked", "error", "degraded", "failed", "timeout"}:
         status = "degraded"
     elif write_status in {"blocked", "error", "degraded"}:
         status = "degraded"
     elif live_smoke_status in {"blocked", "error", "degraded"}:
         status = "degraded"
-    elif live_smoke_status == "ok":
+    elif shell_status == "ok" and live_smoke_status == "ok":
         status = "ok"
     else:
         status = "unverified"
 
     return {
         "status": status,
+        "control_plane_vs_execution_plane": {
+            "telegram_cos_session": signal_status(execution_plane_smoke, "telegram_cos_session"),
+            "gateway_alive": signal_status(execution_plane_smoke, "gateway"),
+            "hooks_registry_ready": signal_status(execution_plane_smoke, "hooks_registry"),
+            "native_relay_usable": live_smoke_status,
+            "shell_execution_usable": shell_status,
+            "codex_terminal_session_attach_available": codex_attach_status,
+            "openclaw_agent_execution_usable": agent_status,
+            "external_action_verification_usable": external_verification_status,
+        },
         "truth_rule": "Gateway health is necessary but insufficient for native-hook relay health.",
         "canary_required": "Native-hook relay health requires a real tool/write/canary path, not gateway status alone.",
         "degraded_if": "Mark execution substrate degraded when Native hook relay unavailable, native hook relay not found, or relay unavailable appears in fresh evidence.",
+        "external_action_gate": (
+            "Do not claim sent/submitted/finalized without action-specific readback evidence and a usable verification path."
+        ),
         "gateway_health": {
             "role": "necessary_but_insufficient",
             "tested_by_collector": False,
         },
+        "execution_plane_smoke": execution_plane_smoke,
         "native_hook_write_path": write_canary,
         "live_session_native_hook_smoke": live_session_smoke,
         "telegram_session_native_hook": live_session_smoke.get(
@@ -628,6 +699,7 @@ def build_dashboard() -> dict[str, Any]:
     supervisor_state, supervisor_warning = read_json(supervisor_path)
     native_hook_canary_state = native_hook_write_canary_state()
     live_session_smoke_state = live_session_native_hook_smoke_state()
+    execution_plane_state = execution_plane_smoke_state()
     json_warnings = {
         supervisor_path: supervisor_warning,
         NATIVE_HOOK_CANARY_PATH: None
@@ -636,6 +708,9 @@ def build_dashboard() -> dict[str, Any]:
         LIVE_SESSION_SMOKE_PATH: None
         if live_session_smoke_state.get("freshness") != "missing"
         else live_session_smoke_state.get("warning", "missing"),
+        EXECUTION_PLANE_SMOKE_PATH: None
+        if execution_plane_state.get("freshness") != "missing"
+        else execution_plane_state.get("warning", "missing"),
     }
 
     priorities = parse_priority_blocks(current_priorities.text, current_priorities.path)
@@ -646,7 +721,12 @@ def build_dashboard() -> dict[str, Any]:
     latest_guarded_closeouts = latest_closeouts(limit=25)
     blocked_register_clear = no_pending(blocked_packets.text)
     packet_execution = packet_execution_summary(latest_guarded_closeouts, blocked_register_clear)
-    execution_substrate = native_hook_truth(latest_guarded_closeouts, native_hook_canary_state, live_session_smoke_state)
+    execution_substrate = native_hook_truth(
+        latest_guarded_closeouts,
+        native_hook_canary_state,
+        live_session_smoke_state,
+        execution_plane_state,
+    )
     security = security_findings(security_baseline.text, security_baseline.path)
 
     needs_baine = [
@@ -785,10 +865,18 @@ def build_dashboard() -> dict[str, Any]:
                     f"origin={live_session_smoke_state.get('execution_origin')} "
                     f"freshness={live_session_smoke_state.get('freshness')}"
                 ),
+                (
+                    "execution_plane_smoke="
+                    f"{execution_plane_state.get('status')} "
+                    f"freshness={execution_plane_state.get('freshness')} "
+                    f"shell={signal_status(execution_plane_state, 'shell_execution')} "
+                    f"agent={signal_status(execution_plane_state, 'openclaw_agent_execution')}"
+                ),
             ],
             "evidence": [
                 native_hook_canary_state.get("source_file"),
                 live_session_smoke_state.get("source_file"),
+                execution_plane_state.get("source_file"),
                 *[item.get("source_file") for item in latest_guarded_closeouts[:4] if item.get("source_file")],
             ],
             "source_file": "state/cos/packets/closeouts/",

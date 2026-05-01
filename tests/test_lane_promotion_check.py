@@ -7,6 +7,7 @@ import importlib.util
 import json
 import tempfile
 import unittest
+from datetime import datetime, timezone
 from pathlib import Path
 from unittest import mock
 
@@ -42,6 +43,14 @@ class LanePromotionCheckTests(unittest.TestCase):
             },
             "system_trust": {
                 "execution_substrate": {
+                    "control_plane_vs_execution_plane": {
+                        "gateway_alive": "ok",
+                        "hooks_registry_ready": "ok",
+                        "shell_execution_usable": "ok",
+                        "openclaw_agent_execution_usable": "ok",
+                        "telegram_cos_session": "unverified",
+                        "native_relay_usable": "unverified",
+                    },
                     "gateway_health": {"role": "necessary_but_insufficient"},
                     "telegram_session_native_hook": {"status": "unverified"},
                 }
@@ -52,23 +61,28 @@ class LanePromotionCheckTests(unittest.TestCase):
             dash_path = tmp_path / "dashboard.json"
             smoke_path = tmp_path / "smoke.json"
             canary_path = tmp_path / "canary.json"
+            execution_smoke_path = tmp_path / "execution-smoke.json"
+            timestamp = datetime.now(timezone.utc).isoformat()
             dash_path.write_text(json.dumps(dashboard), encoding="utf-8")
             smoke_path.write_text(
                 json.dumps(
                     {
                         "status": "ok",
-                        "timestamp": "2026-04-30T05:00:00+00:00",
+                        "timestamp": timestamp,
                         "telegram_session_native_hook": {"status": "unverified"},
                         "gateway_health": {"role": "necessary_but_insufficient"},
                     }
                 ),
                 encoding="utf-8",
             )
-            canary_path.write_text(json.dumps({"status": "ok", "timestamp": "2026-04-30T05:00:00+00:00"}), encoding="utf-8")
+            canary_path.write_text(json.dumps({"status": "ok", "timestamp": timestamp}), encoding="utf-8")
+            execution_smoke_path.write_text(json.dumps({"status": "ok", "timestamp": timestamp}), encoding="utf-8")
 
             with mock.patch.object(promotion, "DASHBOARD_PATH", dash_path), mock.patch.object(
                 promotion, "NATIVE_HOOK_SMOKE_PATH", smoke_path
-            ), mock.patch.object(promotion, "LOCAL_WRITE_CANARY_PATH", canary_path):
+            ), mock.patch.object(promotion, "LOCAL_WRITE_CANARY_PATH", canary_path), mock.patch.object(
+                promotion, "EXECUTION_PLANE_SMOKE_PATH", execution_smoke_path
+            ):
                 result = promotion.run_checks("onboarding_application_packet_audit")
 
         check = result["checks"]["telegram_hook_not_inferred_from_gateway"]

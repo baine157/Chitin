@@ -5,7 +5,8 @@ REPO_ROOT="/home/baine/openclaw/orchestrator"
 cd "$REPO_ROOT"
 
 CONFIG_PATH="${OPENCLAW_CONFIG_PATH:-/home/baine/.openclaw/openclaw.json}"
-EXPECTED_OPENCLAW_VERSION="${EXPECTED_OPENCLAW_VERSION:-2026.4.26}"
+GATEWAY_ENV_PATH="${OPENCLAW_GATEWAY_ENV_PATH:-/home/baine/.openclaw/gateway.systemd.env}"
+EXPECTED_OPENCLAW_VERSION="${EXPECTED_OPENCLAW_VERSION:-2026.4.29}"
 EXPECTED_NODE_VERSION="${EXPECTED_NODE_VERSION:-v22.22.2}"
 EXPECTED_GATEWAY_BIND="${EXPECTED_GATEWAY_BIND:-loopback}"
 EXPECTED_GATEWAY_AUTH_MODE="${EXPECTED_GATEWAY_AUTH_MODE:-password}"
@@ -14,6 +15,13 @@ CANARY_AGENT_ID="${CANARY_AGENT_ID:-main}"
 CANARY_TIMEOUT_SECONDS="${CANARY_TIMEOUT_SECONDS:-90}"
 CANARY_MESSAGE="${CANARY_MESSAGE:-Canary check only. Reply exactly: OK}"
 RELAY_PATTERN='native hook relay not found|Native hook relay unavailable|relay unavailable'
+
+if [ -f "${GATEWAY_ENV_PATH}" ]; then
+  set -a
+  # shellcheck disable=SC1090
+  . "${GATEWAY_ENV_PATH}"
+  set +a
+fi
 
 log() {
   printf '%s\n' "$*"
@@ -80,8 +88,16 @@ PY
 }
 
 run_gateway_probe_gate() {
+  gateway_auth_args=""
+  if [ "${EXPECTED_GATEWAY_AUTH_MODE}" = "password" ]; then
+    [ -n "${OPENCLAW_GATEWAY_TOKEN:-}" ] || fail \
+      "gateway password auth is configured but OPENCLAW_GATEWAY_TOKEN is unavailable from ${GATEWAY_ENV_PATH}"
+    gateway_auth_args="--password ${OPENCLAW_GATEWAY_TOKEN}"
+  fi
   probe_json=""
-  if ! probe_json="$(openclaw gateway probe --json 2>&1)"; then
+  # Intentional word splitting for gateway_auth_args; do not print this command because it carries auth material.
+  # shellcheck disable=SC2086
+  if ! probe_json="$(openclaw gateway probe --json ${gateway_auth_args} 2>&1)"; then
     fail "gateway probe command failed: ${probe_json}"
   fi
   probe_fields="$(
