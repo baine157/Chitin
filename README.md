@@ -39,6 +39,13 @@ State, routing, and blast-radius rules: `docs/architecture/state-routing-blast-r
 Runtime validation: `docs/architecture/runtime-validation-checklist.md`.
 Drift tests: `docs/architecture/orchestration-smoke-tests.md`.
 Current inefficiency audit: `docs/architecture/stack-inefficiency-audit.md`.
+Dreaming/reflection boundary: `docs/architecture/dreaming-and-reflection-boundary.md`.
+
+## Reflection Boundary
+
+Orchestrator may host CoS-level reflection because this is the surface where you interact most. That means pattern recognition about recurring friction, approval loops, runtime instability, and operator burden.
+
+Reflection is not domain truth and not execution proof. Research Fellow dream passes belong in `gbrain/`. Credentialing and medical-log lanes should stay deterministic, evidence-based, and gate-driven.
 
 ## Lightweight Command Surface
 

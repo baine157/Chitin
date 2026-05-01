@@ -20,6 +20,7 @@ Architecture files define reusable operating mechanics:
 - `stack-inefficiency-audit.md`: current inefficiencies, risks, and cleanup sequence.
 - `guarded-packet-runner-v0.md`: fail-closed packet execution lane for autonomous CoS maintenance.
 - `queue-supervisor-sla-v0.md`: queue SLA monitor and alert contract for packet execution health.
+- `dreaming-and-reflection-boundary.md`: where reflective synthesis belongs, where it does not, and why it is not execution proof.
 - `health-harness-v1.md`: local-first personal health harness concept; this is not core orchestration doctrine.
 
 Organization rule:
