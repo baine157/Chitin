@@ -1,2 +1,2 @@
 # Chitin
-Durable Runner for Open Claw
+Durable Runner for Openclaw
