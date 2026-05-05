@@ -1,0 +1,17 @@
+{
+  "name": "@openclaw/durable-runner",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Manifest-governed durable local task runner prototype for OpenClaw.",
+  "bin": {
+    "durable-runner": "./src/cli.ts"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.ts",
+    "smoke": "node src/cli.ts --help"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}
