@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "task_smoke_001",
+  "idempotencyKey": "idem_smoke_001",
+  "title": "smoke task",
+  "laneId": "orchestrator_control_plane_health",
+  "workspace": "/home/baine/openclaw/orchestrator",
+  "command": {
+    "id": "orchestrator_control_plane_unittest",
+    "argv": ["node", "--test", "durable-runner/tests/runner.test.ts"],
+    "shell": false
+  },
+  "state": "queued",
+  "authorityLevel": 2,
+  "externalEffect": {
+    "allowed": false,
+    "description": "local unit test only"
+  },
+  "approvalGates": [],
+  "verificationRequired": [
+    { "type": "exit_code_zero" }
+  ],
+  "createdAt": "2026-05-05T00:00:00.000Z",
+  "updatedAt": "2026-05-05T00:00:00.000Z"
+}
