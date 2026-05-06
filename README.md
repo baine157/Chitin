@@ -4,6 +4,11 @@ Durable local execution runner for OpenClaw.
 
 Chitin provides execution-plane truth when control-plane health alone is not enough. It runs bounded tasks with explicit policy, durable state transitions, append-only events, and verification-gated outcomes.
 
+<<<<<<< HEAD
+=======
+Status: Prototype / not production-ready.
+
+>>>>>>> 9be4e61 (chitin: add CI workflow and finalize prototype docs/examples)
 ## Why This Exists
 
 - Hooks/sessions can look healthy while real host work is unknown.
@@ -16,9 +21,15 @@ From repo root:
 
 ```bash
 node durable-runner/src/cli.ts init
+<<<<<<< HEAD
 node durable-runner/src/cli.ts enqueue <task.json>
 node durable-runner/src/cli.ts tick --manifest lane-manifests/orchestrator_control_plane_health.yaml
 node durable-runner/src/cli.ts status <task-id>
+=======
+node durable-runner/src/cli.ts enqueue durable-runner/examples/task.smoke.json
+node durable-runner/src/cli.ts tick --manifest lane-manifests/orchestrator_control_plane_health.yaml
+node durable-runner/src/cli.ts status task_smoke_001
+>>>>>>> 9be4e61 (chitin: add CI workflow and finalize prototype docs/examples)
 ```
 
 Watch mode:
@@ -70,6 +81,7 @@ Durable artifacts:
 
 ## Operational Soak
 
+<<<<<<< HEAD
 Use scripts in `scripts/cos/`:
 
 - `durable_runner_soak_start.sh`
@@ -80,6 +92,14 @@ Use scripts in `scripts/cos/`:
 Runbook:
 
 - `docs/architecture/durable-runner-soak-runbook.md`
+=======
+Soak scripts are optional and local-repo scoped only:
+
+- `scripts/cos/durable_runner_soak_start.sh`
+- `scripts/cos/durable_runner_soak_status.sh`
+- `scripts/cos/durable_runner_soak_stop_and_report.sh`
+- `scripts/cos/durable_runner_soak_supervisor.sh`
+>>>>>>> 9be4e61 (chitin: add CI workflow and finalize prototype docs/examples)
 
 ## Proof of Use
 
@@ -103,4 +123,7 @@ node durable-runner/src/cli.ts --help
 - No external API coupling for core runner operation
 - No hidden in-memory state as source of truth
 - No direct replacement of hooks; this is a durable fallback/relay lane
+<<<<<<< HEAD
 
+=======
+>>>>>>> 9be4e61 (chitin: add CI workflow and finalize prototype docs/examples)

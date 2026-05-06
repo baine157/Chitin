@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "laneId": "orchestrator_control_plane_health",
+  "workspace": "/home/baine/openclaw/orchestrator",
+  "authorityMaxLevel": 2,
+  "externalCommitAllowed": false,
+  "allowedCommands": {
+    "orchestrator_control_plane_unittest": ["node", "--test", "durable-runner/tests/runner.test.ts"]
+  },
+  "forbiddenActions": [],
+  "humanGates": []
+}

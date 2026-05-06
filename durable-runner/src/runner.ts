@@ -191,6 +191,9 @@ export class DurableRunner {
         renewals: input.renewals,
         renewFailures: input.renewFailures,
         failures: input.failures,
+        queueDiagnosisAlerts: 0,
+        quarantinedParseErrors: 0,
+        lockContentionSkips: 0,
       },
       execution_plane_truth: {
         queue_liveness: "necessary_but_insufficient",
@@ -245,6 +248,8 @@ function policyFromLaneManifest(value: unknown): Record<string, unknown> {
 }
 
 async function runArgv(packet: TaskPacket): Promise<{ exitCode: number; stdout: string; stderr: string }> {
+  const timeoutMs = 30_000;
+  const outputCapBytes = 1024 * 1024;
   return new Promise((resolve, reject) => {
     const [cmd, ...args] = packet.command.argv;
     const child = spawn(cmd, args, {
@@ -254,16 +259,29 @@ async function runArgv(packet: TaskPacket): Promise<{ exitCode: number; stdout: 
     });
     let stdout = "";
     let stderr = "";
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      child.kill("SIGTERM");
+    }, timeoutMs);
     child.stdout.setEncoding("utf8");
     child.stderr.setEncoding("utf8");
     child.stdout.on("data", (chunk) => {
       stdout += chunk;
+      if (stdout.length > outputCapBytes) stdout = stdout.slice(0, outputCapBytes);
     });
     child.stderr.on("data", (chunk) => {
       stderr += chunk;
+      if (stderr.length > outputCapBytes) stderr = stderr.slice(0, outputCapBytes);
     });
-    child.on("error", reject);
-    child.on("close", (code) => resolve({ exitCode: code ?? 1, stdout, stderr }));
+    child.on("error", (err) => {
+      clearTimeout(timer);
+      reject(err);
+    });
+    child.on("close", (code) => {
+      clearTimeout(timer);
+      resolve({ exitCode: timedOut ? 124 : code ?? 1, stdout, stderr });
+    });
   });
 }
 

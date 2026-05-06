@@ -117,6 +117,9 @@ export interface WatchHealthSnapshot {
     renewals: number;
     renewFailures: number;
     failures: number;
+    queueDiagnosisAlerts: number;
+    quarantinedParseErrors: number;
+    lockContentionSkips: number;
   };
   execution_plane_truth: {
     queue_liveness: "necessary_but_insufficient";
@@ -126,5 +129,18 @@ export interface WatchHealthSnapshot {
     taskId: string;
     runId: string;
     leaseExpiresAt: string;
+  };
+}
+
+export interface UsageProof {
+  status: "ok";
+  used: boolean;
+  checkedAt: string;
+  maxFreshMs: number;
+  evidence: {
+    events: { fileCount: number; freshestAt: string | null };
+    runs: { taskDirCount: number; freshestAt: string | null };
+    watchHealth: { exists: boolean; mtime: string | null };
+    ledger: { cleanupEntries: number };
   };
 }

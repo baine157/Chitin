@@ -75,6 +75,19 @@ async function main(): Promise<number> {
     console.log(JSON.stringify(status, null, 2));
     return 0;
   }
+  if (command === "cleanup-quarantine") {
+    const dryRun = args.includes("--dry-run");
+    const maxAgeHours = Number(option(args, "--max-age-hours") ?? String(14 * 24));
+    const result = await new DurableRunnerStore(root).cleanupQuarantine(maxAgeHours, dryRun);
+    console.log(JSON.stringify(result, null, 2));
+    return 0;
+  }
+  if (command === "prove") {
+    const maxFreshMs = Number(option(args, "--max-fresh-ms") ?? "120000");
+    const proof = await new DurableRunnerStore(root).proveUsage(maxFreshMs);
+    console.log(JSON.stringify(proof, null, 2));
+    return 0;
+  }
   throw new Error(`unknown command: ${command}`);
 }
 
@@ -97,6 +110,8 @@ Commands:
   watch (--policy <policy.json|policy.yaml> | --manifest <lane.yaml>) [--root DIR] [--worker ID] [--lease-ms MS] [--poll-ms MS] [--max-loops N] [--heartbeat-ms MS]
   approve <task-id> <gate-id> [--root DIR]
   status <task-id> [--root DIR]
+  cleanup-quarantine [--root DIR] [--dry-run] [--max-age-hours N]
+  prove [--root DIR] [--max-fresh-ms N]
 `);
 }
 

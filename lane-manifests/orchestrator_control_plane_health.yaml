@@ -1,0 +1,14 @@
+lane_id: orchestrator_control_plane_health
+workspace: /home/baine/openclaw/orchestrator
+live_run:
+  authority_max_level: 2
+  external_commit_allowed: false
+commands:
+  orchestrator_control_plane_unittest:
+    id: orchestrator_control_plane_unittest
+    argv:
+      - node
+      - --test
+      - durable-runner/tests/runner.test.ts
+forbidden_actions: []
+human_gates: []
