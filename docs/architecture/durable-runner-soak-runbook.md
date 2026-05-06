@@ -8,7 +8,7 @@ Default soak root is now:
 `${REPO_ROOT}/state/cos/durable-runner`
 
 This is intentional so watch health flows directly into the existing
-observability dashboard collector path.
+repo-local durable-runner state tree.
 
 ## Start
 
@@ -22,6 +22,10 @@ Optional args:
 ```text
 <root_dir> <duration_hours> <poll_ms> <lease_ms> <heartbeat_ms> <collect_every_sec> <worker_id>
 ```
+
+The dashboard collector is optional in this repo. Set `COLLECTOR=/path/to/script`
+before starting a soak if a host-local collector exists; otherwise the soak runs
+with collector reporting disabled.
 
 ## Status
 

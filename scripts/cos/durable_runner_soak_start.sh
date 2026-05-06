@@ -12,7 +12,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 ROOT_DIR="${1:-${REPO_ROOT}/state/cos/durable-runner}"
 MANIFEST_PATH="${MANIFEST_PATH:-${REPO_ROOT}/lane-manifests/orchestrator_control_plane_health.yaml}"
 RUNNER_CLI="${RUNNER_CLI:-${REPO_ROOT}/durable-runner/src/cli.ts}"
-COLLECTOR="${COLLECTOR:-${REPO_ROOT}/scripts/observability/collect_dashboard.py}"
+COLLECTOR="${COLLECTOR:-}"
 SUPERVISOR="${SUPERVISOR:-${SCRIPT_DIR}/durable_runner_soak_supervisor.sh}"
 LOG_DIR="${ROOT_DIR}/logs"
 RUN_DIR="${ROOT_DIR}/run"
@@ -28,7 +28,14 @@ echo "  duration_hours: ${DURATION_HOURS}"
 echo "  poll_ms: ${POLL_MS}"
 echo "  lease_ms: ${LEASE_MS}"
 echo "  heartbeat_ms: ${HEARTBEAT_MS}"
-echo "  collect_every_sec: ${COLLECT_EVERY_SEC}"
+if [[ -n "${COLLECTOR}" && -f "${COLLECTOR}" ]]; then
+  echo "  collector: ${COLLECTOR}"
+  echo "  collect_every_sec: ${COLLECT_EVERY_SEC}"
+elif [[ -n "${COLLECTOR}" ]]; then
+  echo "  collector: disabled (${COLLECTOR} not found)"
+else
+  echo "  collector: disabled"
+fi
 
 nohup bash "${SUPERVISOR}" \
   "${ROOT_DIR}" \
@@ -42,13 +49,16 @@ nohup bash "${SUPERVISOR}" \
 SUPERVISOR_PID=$!
 echo "${SUPERVISOR_PID}" > "${PID_DIR}/supervisor.pid"
 
-# Liveness gate: fail fast if either background process exits immediately.
+# Liveness gate: fail fast if required background work exits immediately.
 sleep 3
 watch_alive="false"
-collector_alive="false"
+collector_alive="disabled"
 if [[ -f "${PID_DIR}/watch.pid" ]] && kill -0 "$(cat "${PID_DIR}/watch.pid")" 2>/dev/null; then watch_alive="true"; fi
-if [[ -f "${PID_DIR}/collector.pid" ]] && kill -0 "$(cat "${PID_DIR}/collector.pid")" 2>/dev/null; then collector_alive="true"; fi
-if ! kill -0 "${SUPERVISOR_PID}" 2>/dev/null || [[ "${watch_alive}" != "true" || "${collector_alive}" != "true" ]]; then
+if [[ -n "${COLLECTOR}" && -f "${COLLECTOR}" ]]; then
+  collector_alive="false"
+  if [[ -f "${PID_DIR}/collector.pid" ]] && kill -0 "$(cat "${PID_DIR}/collector.pid")" 2>/dev/null; then collector_alive="true"; fi
+fi
+if ! kill -0 "${SUPERVISOR_PID}" 2>/dev/null || [[ "${watch_alive}" != "true" || "${collector_alive}" == "false" ]]; then
   echo "SOAK_START_FAILED"
   echo "supervisor_alive=false"
   echo "watch_alive=${watch_alive}"
@@ -66,6 +76,6 @@ cat <<EOF
 SOAK_STARTED
 supervisor_pid=${SUPERVISOR_PID}
 watch_pid=$(cat "${PID_DIR}/watch.pid")
-collector_pid=$(cat "${PID_DIR}/collector.pid")
+collector_pid=$(cat "${PID_DIR}/collector.pid" 2>/dev/null || echo disabled)
 run_root=${RUN_DIR}
 EOF

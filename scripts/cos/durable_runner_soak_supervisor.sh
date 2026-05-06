@@ -12,7 +12,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 ROOT_DIR="${1:-${REPO_ROOT}/state/cos/durable-runner}"
 MANIFEST_PATH="${MANIFEST_PATH:-${REPO_ROOT}/lane-manifests/orchestrator_control_plane_health.yaml}"
 RUNNER_CLI="${RUNNER_CLI:-${REPO_ROOT}/durable-runner/src/cli.ts}"
-COLLECTOR="${COLLECTOR:-${REPO_ROOT}/scripts/observability/collect_dashboard.py}"
+COLLECTOR="${COLLECTOR:-}"
 LOG_DIR="${ROOT_DIR}/logs"
 RUN_DIR="${ROOT_DIR}/run"
 PID_DIR="${ROOT_DIR}/pids"
@@ -50,6 +50,18 @@ start_watch() {
 }
 
 start_collector() {
+  if [[ -z "${COLLECTOR}" ]]; then
+    rm -f "${PID_DIR}/collector.pid"
+    printf '{"at":"%s","type":"collector_disabled","reason":"collector_not_configured"}\n' "$(json_now)" >> "${INCIDENT_LOG}"
+    return 0
+  fi
+
+  if [[ ! -f "${COLLECTOR}" ]]; then
+    rm -f "${PID_DIR}/collector.pid"
+    printf '{"at":"%s","type":"collector_disabled","reason":"collector_not_found","path":"%s"}\n' "$(json_now)" "${COLLECTOR}" >> "${INCIDENT_LOG}"
+    return 0
+  fi
+
   nohup bash -lc "
 while true; do
   python3 \"${COLLECTOR}\" >> \"${LOG_DIR}/collector.log\" 2>&1 || true
@@ -73,15 +85,19 @@ while (( $(date +%s) < END_EPOCH )); do
     start_watch
   fi
 
-  if [[ -z "${collector_pid}" ]] || ! kill -0 "${collector_pid}" 2>/dev/null; then
-    write_incident "collector" "process_not_alive"
-    start_collector
+  if [[ -n "${COLLECTOR}" && -f "${COLLECTOR}" ]]; then
+    if [[ -z "${collector_pid}" ]] || ! kill -0 "${collector_pid}" 2>/dev/null; then
+      write_incident "collector" "process_not_alive"
+      start_collector
+    fi
+  else
+    collector_pid="disabled"
   fi
 
   printf '{"at":"%s","status":"alive","watchPid":"%s","collectorPid":"%s"}\n' \
     "$(json_now)" \
     "$(cat "${PID_DIR}/watch.pid" 2>/dev/null || echo missing)" \
-    "$(cat "${PID_DIR}/collector.pid" 2>/dev/null || echo missing)" \
+    "$(cat "${PID_DIR}/collector.pid" 2>/dev/null || echo disabled)" \
     > "${HEARTBEAT_FILE}"
 
   sleep 30
