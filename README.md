@@ -4,8 +4,6 @@ Durable local execution runner for OpenClaw.
 
 Chitin provides execution-plane truth when control-plane health alone is not enough. It runs bounded tasks with explicit policy, durable state transitions, append-only events, and verification-gated outcomes.
 
-<<<<<<< HEAD
-=======
 Status: Prototype / not production-ready.
 
 >>>>>>> 9be4e61 (chitin: add CI workflow and finalize prototype docs/examples)
